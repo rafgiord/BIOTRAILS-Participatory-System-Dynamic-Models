@@ -1,0 +1,732 @@
+{ VERSION 4.0 }
+
+{ The model has 286 (286) variables (array expansion in parens).
+  In root model and 4 additional modules with 0 sectors.
+  Stocks: 16 (16) Flows: 31 (31) Converters: 239 (239)
+  Constants: 101 (101) Equations: 169 (169) Graphicals: 1 (1)  }
+
+{ INITIALIZATION EQUATIONS }
+: s ENVIRONMENTAL_DEGRADATION.Environmental_Degradation = 30
+    UNITS: Percentage
+    DOCUMENT: Aggregate indicator of environmental health. Higher values mean more degradation.
+: s ENVIRONMENTAL_DEGRADATION.Soil_Quality = 70
+    UNITS: Percentage
+: s "INDIGENOUS_WELL-BEING".Handicraft_Activities = 15
+    UNITS: Percentage
+: s "INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement = 10
+    UNITS: Percentage
+: s "INDIGENOUS_WELL-BEING"."Indigenous_Community_Well-Being" = 30
+    UNITS: Percentage
+: s "INDIGENOUS_WELL-BEING".Indigenous_Knowledge = 80
+    UNITS: Percentage
+    DOCUMENT: Represents the vitality and transmission of traditional indigenous knowledge
+: s "INDIGENOUS_WELL-BEING".Women_Engagement = 30
+    UNITS: Percentage
+: s INSTITUTIONAL_CAPACITY.Deforestation_Awareness = 20
+    UNITS: Percentage
+: s INSTITUTIONAL_CAPACITY.Environmental_Monitoring_Effectiveness = 10
+    UNITS: Percentage
+: s INSTITUTIONAL_CAPACITY.Institutional_Capacity = 20
+    UNITS: Percentage
+: s INSTITUTIONAL_CAPACITY.People_Trust_in_Institutions = 20
+    UNITS: Percentage
+: s LANDUSE_CONFLICTS.Cleared_Land_Area = 7
+    UNITS: Percentage
+    DOCUMENT: Mapbiomas data for Rondônia
+: s LANDUSE_CONFLICTS.Forest_Area = 40
+    UNITS: Percentage
+    DOCUMENT: Total forest area including Indigenous Forest Area.
+: s LANDUSE_CONFLICTS.Indigenous_Forest_Area = 25
+    UNITS: Percentage
+    DOCUMENT: Percentage of the total area that is Forest and also legally recognized as Indigenous Land. This area benefits from special protection but is still subject to pressures.
+: s LANDUSE_CONFLICTS.Legal_Timber_Extraction_Area = 5
+    UNITS: Percentage
+    DOCUMENT: Mapbiomas data for Rondônia
+: s LANDUSE_CONFLICTS.Pasture_Area = 48
+    UNITS: Percentage
+    DOCUMENT: Mapbiomas data for Rondônia
+: c ENVIRONMENTAL_DEGRADATION.forest_area_impact_on_soil_recovery = LANDUSE_CONFLICTS.Forest_Area / (INIT (LANDUSE_CONFLICTS.Forest_Area * 2))
+    UNITS: Dimensionless
+: c ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION = 100
+    UNITS: Percentage
+    DOCUMENT: 100
+: c "INDIGENOUS_WELL-BEING".BASE_RAW_MATERIAL_AVAILABILITY = 0,02
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.Secure_indigenous_land_right = 0
+: c "INDIGENOUS_WELL-BEING".availability_of_raw_material_for_handicraft = (LANDUSE_CONFLICTS.Indigenous_Forest_Area/INIT (LANDUSE_CONFLICTS.Indigenous_Forest_Area)) * (1 - 2*ENVIRONMENTAL_DEGRADATION.Environmental_Degradation/ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION) * BASE_RAW_MATERIAL_AVAILABILITY+ 3*LANDUSE_CONFLICTS.Secure_indigenous_land_right
+    DOCUMENT: More indigenous forest area, more material
+: c LANDUSE_CONFLICTS.BASE_FOREST_RECOVERY_RATE = 0,001
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.Forest_conservation_policy = 0
+: c LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES = IF TIME > 2030 THEN Forest_conservation_policy ELSE 0
+: f LANDUSE_CONFLICTS.forest_recovery_rate =  BASE_FOREST_RECOVERY_RATE + FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.BASE_HUMAN_FIRE_RATE = 0,008
+    UNITS: 1/Year
+: c LANDUSE_CONFLICTS.CONSECUTIVE_DRY_DAYS = TIME
+    UNITS: Days
+    DOCUMENT: Values from D3.8 using SSP2-4.5 
+: c LANDUSE_CONFLICTS.climate_dryness_effect = IF CONSECUTIVE_DRY_DAYS < 10 THEN 1  ELSE IF CONSECUTIVE_DRY_DAYS < 30 THEN 1,5  ELSE IF CONSECUTIVE_DRY_DAYS < 50 THEN 1,8  ELSE 2
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".Women_engagement_initiatives = 0
+: c "INDIGENOUS_WELL-BEING".AWARENESS_CAMPAIGNS = IF TIME > 2030 THEN Women_engagement_initiatives ELSE 0
+: c "INDIGENOUS_WELL-BEING".Education_and_knowledge_transfer = 0
+: c "INDIGENOUS_WELL-BEING".EDUCATION_PROGRAMMES = IF TIME > 2035 THEN Education_and_knowledge_transfer ELSE 0
+: c "INDIGENOUS_WELL-BEING".Community_engagement = 0
+: c "INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION = IF TIME > 2035 THEN Community_engagement ELSE 0
+: c INSTITUTIONAL_CAPACITY.public_awareness = "INDIGENOUS_WELL-BEING".AWARENESS_CAMPAIGNS + 2*"INDIGENOUS_WELL-BEING".EDUCATION_PROGRAMMES+4*"INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION
+: c LANDUSE_CONFLICTS.human_induced_fire_rate =  BASE_HUMAN_FIRE_RATE * climate_dryness_effect * (1 - 0,2 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.fire_induced_deforestation_rate = (human_induced_fire_rate)*(Forest_Area/100)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.BASE_PASTURE_EXPANSION_RATE = 0,3
+    UNITS: Percentage/Year
+    DOCUMENT: This is the ‘potential’ expansion rate of pastures, under standard conditions (profitability=1 and available land). 0.5%land/year means a slow growth; 1//year means a moderate growth, while 2%/year means an aggressive growth.
+: c LANDUSE_CONFLICTS.PASTURE_PROFITABILITY_FACTOR = 2 * (1 - 0,1 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Dimensionless
+    DOCUMENT: Economic return from grazing expansion on a scale of 0 to 2 (1=basic situation)
+: c LANDUSE_CONFLICTS.MAX_PASTURE_AREA_LIMIT = 70
+    UNITS: Percentage
+    DOCUMENT: maximum proportion of land that can realistically be converted to pasture.
+    It serves to artificially curb expansion when pastures approach this limit. 70% realistic average limit; 80% extreme limit (quite total saturation); 60% conservative scenario (strong protection/restoration).
+: c "INDIGENOUS_WELL-BEING".MAX_COMMUNITY_ENGAGEMENT = 100
+    UNITS: Percentage
+: c LANDUSE_CONFLICTS.pasture_expansion_demand_rate =   BASE_PASTURE_EXPANSION_RATE * PASTURE_PROFITABILITY_FACTOR   * (1 - Pasture_Area/MAX_PASTURE_AREA_LIMIT)   * (1 - 0,3 * "INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement/"INDIGENOUS_WELL-BEING".MAX_COMMUNITY_ENGAGEMENT)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.ILLEGAL_LOGGING_PRESSURE_NON_INDIGENOUS = 0,004
+    UNITS: Dimensionless/Year
+: c LANDUSE_CONFLICTS.illegal_logging_deforestation_rate_non_indigenous = ILLEGAL_LOGGING_PRESSURE_NON_INDIGENOUS*(Forest_Area-Indigenous_Forest_Area)*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+    DOCUMENT: This represents the annual rate at which forest area is lost due to illegal logging activities, contributing to overall deforestation.
+: c LANDUSE_CONFLICTS.LAND_GRABBING_BASE_RATE = 0,003
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.CLEARING_EFFECTIVENESS_FACTOR = 0,8
+    UNITS: Dimensionless
+    DOCUMENT: A value of 0.8 suggests that 80% of land grabbing results in direct pressure for deforestation. reflects the effectiveness (or legality/illegality) of land grabbing, where not all of the land grabbed is immediately or effectively deforested, due to obstacles or inefficient management.
+: c LANDUSE_CONFLICTS.land_grabbing_pressure_on_non_indigenous_forest = LAND_GRABBING_BASE_RATE * CLEARING_EFFECTIVENESS_FACTOR * (Forest_Area - Indigenous_Forest_Area) / Forest_Area
+    UNITS: Percentage/Year
+    DOCUMENT: Pressure from land grabbing on non-indigenous parts of the forest
+: c LANDUSE_CONFLICTS.TOTAL_TIMBER_DEMAND = 2
+    UNITS: Dimensionless
+: c LANDUSE_CONFLICTS.TIMBER_CLEARING_FACTOR = 0,1 * (1 - 0,1 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.legal_timber_clearing_demand_rate = TOTAL_TIMBER_DEMAND*TIMBER_CLEARING_FACTOR
+    UNITS: Percentage/Year
+    DOCUMENT: This rate reflects how much new forest area needs to be cleared each year to meet the legal timber demand. It's the part of the total demand that leads to direct deforestation for legal timber production, converting forest into cleared land. Assumed to be on non-Indigenous forest only.
+: c LANDUSE_CONFLICTS.BASE_ILLEGAL_PASTURE_RATE = 0,002
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.ILLEGAL_PASTURE_ENFORCEMENT_FACTOR = 1
+    UNITS: Dimensionless
+: c LANDUSE_CONFLICTS.illegal_pasture_pressure_rate_non_indigenous = BASE_ILLEGAL_PASTURE_RATE*(1+(PASTURE_PROFITABILITY_FACTOR-1))*ILLEGAL_PASTURE_ENFORCEMENT_FACTOR* (Forest_Area - Indigenous_Forest_Area) / Forest_Area*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.deforestation_from_clearing = pasture_expansion_demand_rate+illegal_logging_deforestation_rate_non_indigenous+land_grabbing_pressure_on_non_indigenous_forest+legal_timber_clearing_demand_rate+illegal_pasture_pressure_rate_non_indigenous
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.BASE_FOREST_RECOVERY_RATE_INDIGENOUS = 0,002
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.MAX_INDIGENOUS_FOREST_AREA = 30
+    UNITS: Percentage
+: f LANDUSE_CONFLICTS.forest_recovery_rate_in_indigenous_land = BASE_FOREST_RECOVERY_RATE_INDIGENOUS * (1 - Indigenous_Forest_Area/MAX_INDIGENOUS_FOREST_AREA) + FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES+Secure_indigenous_land_right
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.land_grabbing_pressure_on_indigenous_land = (LAND_GRABBING_BASE_RATE * CLEARING_EFFECTIVENESS_FACTOR)* (Indigenous_Forest_Area / Forest_Area)*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.ILLEGAL_LOGGING_PRESSURE_INDIGENOUS = 0,002
+    UNITS: Dimensionless/Year
+    DOCUMENT: Lower that non indigenous due to protection from natives
+: c INSTITUTIONAL_CAPACITY.MAX_INSTITUTIONAL_CAPACITY = 100
+    UNITS: Percentage
+: c LANDUSE_CONFLICTS.lack_of_property_right_factor = (1/(INSTITUTIONAL_CAPACITY.Institutional_Capacity/INSTITUTIONAL_CAPACITY.MAX_INSTITUTIONAL_CAPACITY *"INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement/"INDIGENOUS_WELL-BEING".MAX_COMMUNITY_ENGAGEMENT))
+: c LANDUSE_CONFLICTS.property_rights_effectiveness = 1/(1+lack_of_property_right_factor)
+    UNITS: Dimensionless
+: c LANDUSE_CONFLICTS.BASE_FOREST_POLICY = 0,5
+: c "INDIGENOUS_WELL-BEING".Increase_market_accessibility = 0
+: c "INDIGENOUS_WELL-BEING".MARKET_ACCESS_FACTOR = IF TIME > 2030 THEN Increase_market_accessibility ELSE 0
+: c INSTITUTIONAL_CAPACITY.TRACEABILITY_SYSTEMS = IF TIME > 2035 THEN "INDIGENOUS_WELL-BEING".Increase_market_accessibility ELSE 0
+: c "INDIGENOUS_WELL-BEING".Training_and_capacity_building = 0
+: c "INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT = IF TIME > 2030 THEN Training_and_capacity_building ELSE 0
+: c INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation = 0
+: c LANDUSE_CONFLICTS.forest_protection_policy_effectiveness = BASE_FOREST_POLICY + (INSTITUTIONAL_CAPACITY.Institutional_Capacity/INSTITUTIONAL_CAPACITY.MAX_INSTITUTIONAL_CAPACITY * "INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement/"INDIGENOUS_WELL-BEING".MAX_COMMUNITY_ENGAGEMENT ) + 0,09*"INDIGENOUS_WELL-BEING".MARKET_ACCESS_FACTOR   + 0,09*INSTITUTIONAL_CAPACITY.TRACEABILITY_SYSTEMS+0,9*"INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT+0,9*"INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION+0,9*INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation
+    UNITS: Dimensionless
+: c LANDUSE_CONFLICTS.illegal_logging_pressure_on_indigenous_land = ILLEGAL_LOGGING_PRESSURE_INDIGENOUS * Indigenous_Forest_Area* (1-(property_rights_effectiveness+forest_protection_policy_effectiveness))*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.BASE_ILLEGAL_PASTURE_RATE_INDIGENOUS = 0,0008
+    UNITS: Percentage/Year
+    DOCUMENT: Lower than illegal pasture rate (non-indigenous) due to protection from natives
+: c LANDUSE_CONFLICTS.illegal_pasture_pressure_on_indigenous_land = (BASE_ILLEGAL_PASTURE_RATE_INDIGENOUS * (1+(PASTURE_PROFITABILITY_FACTOR-1)) * ILLEGAL_PASTURE_ENFORCEMENT_FACTOR * (Indigenous_Forest_Area / Forest_Area))*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: f LANDUSE_CONFLICTS.deforestation_in_indigenous_land = (land_grabbing_pressure_on_indigenous_land+illegal_logging_pressure_on_indigenous_land+illegal_pasture_pressure_on_indigenous_land)
+    UNITS: Percentage/Year
+    DOCUMENT: Rate of deforestation occurring specifically within Indigenous Forest Areas
+: f LANDUSE_CONFLICTS.total_deforestation_rate =  (fire_induced_deforestation_rate + deforestation_from_clearing + deforestation_in_indigenous_land) * (1 -( forest_protection_policy_effectiveness))
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.PASTURE_ABANDONMENT_FACTOR = 0,0005
+    UNITS: Dimensionless/Year
+: f LANDUSE_CONFLICTS.pasture_abandonment_rate = Pasture_Area*PASTURE_ABANDONMENT_FACTOR
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.TIMBER_EXPANSION_FACTOR = 0,05
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.legal_timber_expansion_rate = TOTAL_TIMBER_DEMAND*TIMBER_EXPANSION_FACTOR
+    UNITS: Percentage/Year
+    DOCUMENT: This rate indicates how quickly the dedicated 'Legal Timber Extraction Areas' are expanding each year. It's driven by the overall timber demand and represents the growth of land specifically managed for legal timber harvesting.
+: c LANDUSE_CONFLICTS.TIMBER_CONVERSION_EFFICIENCY = 0,6
+    UNITS: Dimensionless
+: f LANDUSE_CONFLICTS.conversion_to_legal_timber_extraction = legal_timber_expansion_rate*TIMBER_CONVERSION_EFFICIENCY*(Cleared_Land_Area/100)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.LEGAL_TIMBER_ABANDONMENT_FACTOR = 0,02
+    UNITS: Dimensionless/Year
+: f LANDUSE_CONFLICTS.legal_timber_extraction_abandonment_rate = Legal_Timber_Extraction_Area*LEGAL_TIMBER_ABANDONMENT_FACTOR
+    UNITS: Percentage/Year
+: f LANDUSE_CONFLICTS.newly_cleared_land = total_deforestation_rate+pasture_abandonment_rate+legal_timber_extraction_abandonment_rate
+    UNITS: Percentage/Year
+    DOCUMENT: All deforested land first becomes 'Cleared_land' before conversion
+: c LANDUSE_CONFLICTS.PASTURE_CONVERSION_EFFICIENCY = 0,9
+    UNITS: Dimensionless
+: f LANDUSE_CONFLICTS.conversion_to_pasture_area = pasture_expansion_demand_rate*PASTURE_CONVERSION_EFFICIENCY*(DELAY((Cleared_Land_Area); 2))
+    UNITS: Percentage/Year
+    DOCUMENT: Cleared land area available for pasture conversion after a delay period.
+: c Coordination_costs = 7
+: c Education_cost = 4
+: c Engagement_cost = 3
+: c Forest_restoration_cost = 7
+: c land_right_cost = 8
+: c Market_access_cost = 4
+: c Monitoring_cost = 7
+: c Women_Engagement_cost = 2
+: c Training_costs = 4
+: c "INDIGENOUS_WELL-BEING".Engagement = 0
+: c INSTITUTIONAL_CAPACITY.Enhance_environmental_monitoring = 0
+: c Overall_strategy_cost = ("INDIGENOUS_WELL-BEING".Increase_market_accessibility*Market_access_cost)+(land_right_cost*LANDUSE_CONFLICTS.Secure_indigenous_land_right)+("INDIGENOUS_WELL-BEING".Women_engagement_initiatives*Women_Engagement_cost)+("INDIGENOUS_WELL-BEING".Education_and_knowledge_transfer*Education_cost)+("INDIGENOUS_WELL-BEING".Training_and_capacity_building*Training_costs)+(INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation*Coordination_costs)+(Engagement_cost*"INDIGENOUS_WELL-BEING".Engagement)+(Forest_restoration_cost*LANDUSE_CONFLICTS.Forest_conservation_policy)+(Monitoring_cost*INSTITUTIONAL_CAPACITY.Enhance_environmental_monitoring)
+: c ENVIRONMENTAL_DEGRADATION.DEFORESTATION_DEGRADATION_FACTOR = 0,6
+    UNITS: Dimensionless
+: c ENVIRONMENTAL_DEGRADATION.deforestation_impact_on_environmental_degradation = LANDUSE_CONFLICTS.total_deforestation_rate * DEFORESTATION_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.PASTURE_DEGRADATION_FACTOR = 0,6
+    UNITS: Dimensionless
+: c ENVIRONMENTAL_DEGRADATION.pasture_expansion_impact_on_environmental_degradation = LANDUSE_CONFLICTS.pasture_expansion_demand_rate*PASTURE_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.FIRE_DEGRADATION_FACTOR = 0,6
+    UNITS: Dimensionless
+: c ENVIRONMENTAL_DEGRADATION.fire_impact_on_degradation = LANDUSE_CONFLICTS.fire_induced_deforestation_rate*FIRE_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.ILLEGAL_ACTIVITIES_DEGRADATION_FACTOR = 0,6
+    UNITS: Dimensionless
+: c ENVIRONMENTAL_DEGRADATION.illegal_activities_impact_on_environmental_degradation = (LANDUSE_CONFLICTS.illegal_logging_deforestation_rate_non_indigenous+LANDUSE_CONFLICTS.illegal_pasture_pressure_on_indigenous_land+LANDUSE_CONFLICTS.illegal_logging_pressure_on_indigenous_land+LANDUSE_CONFLICTS.illegal_pasture_pressure_rate_non_indigenous+LANDUSE_CONFLICTS.land_grabbing_pressure_on_non_indigenous_forest+LANDUSE_CONFLICTS.land_grabbing_pressure_on_indigenous_land) * ILLEGAL_ACTIVITIES_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+    DOCUMENT: Combined impact of all illegal activities (both indigenous and non-indigenous areas) on environmental degradation. The impact of illegal activities on the environment is not only a function of the area converted/deforested, but also of the way in which the activity is conducted, and this method is inherently more destructive when the activity is illegal and unregulated.
+: c ENVIRONMENTAL_DEGRADATION.MAX_SOIL_QUALITY = 100
+    UNITS: Percentage
+: c ENVIRONMENTAL_DEGRADATION.SOIL_DEGRADATION_AMPLIFIER = 0,2
+    UNITS: Dimensionless
+    DOCUMENT: Amplifies environmental degradation rate when soil quality is low
+: c ENVIRONMENTAL_DEGRADATION.conservation_impact_on_degradation = LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES+1,5*INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation
+: f ENVIRONMENTAL_DEGRADATION.degradation_rate = (deforestation_impact_on_environmental_degradation + pasture_expansion_impact_on_environmental_degradation + fire_impact_on_degradation + illegal_activities_impact_on_environmental_degradation) * (1 - Environmental_Degradation / MAX_ENVIRONMENTAL_DEGRADATION)* (1 + (1 - Soil_Quality / MAX_SOIL_QUALITY) * SOIL_DEGRADATION_AMPLIFIER)-conservation_impact_on_degradation
+    UNITS: Percentage/Year
+    DOCUMENT: Total rate of environmental degradation, influenced by various human activities. The (1 - ...) term ensures it slows down as degradation approaches its maximum.
+: c ENVIRONMENTAL_DEGRADATION.BASE_ENVIRONMENTAL_RECOVERY_RATE = 0,005
+    UNITS: Percentage/Year
+    DOCUMENT: 0,005
+: c ENVIRONMENTAL_DEGRADATION.Base_policy_effectiveness = 1
+: c ENVIRONMENTAL_DEGRADATION.environmental_policy_effectiveness = Base_policy_effectiveness*(INSTITUTIONAL_CAPACITY.Institutional_Capacity+INSTITUTIONAL_CAPACITY.Environmental_Monitoring_Effectiveness)
+    UNITS: Dimensionless
+    DOCUMENT: Overall effectiveness of environmental policies (0=none, 1=perfect). Higher values enhance recovery.
+: f ENVIRONMENTAL_DEGRADATION.environmental_recovery_rate = BASE_ENVIRONMENTAL_RECOVERY_RATE * (1 + environmental_policy_effectiveness) * (Environmental_Degradation / MAX_ENVIRONMENTAL_DEGRADATION)
+    UNITS: Percentage/Year
+    DOCUMENT: Rate of environmental recovery, enhanced by policy effectiveness and faster when degradation is high.
+: c ENVIRONMENTAL_DEGRADATION.BASE_SOIL_RECOVERY_RATE = 0,003
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.ENVIRONMENTAL_DEGRADATION_IMPACT_ON_SOIL_RECOVERY = 0,5
+    UNITS: Dimensionless
+    DOCUMENT: Factor by which high environmental degradation hinders soil recovery.
+: f ENVIRONMENTAL_DEGRADATION.soil_recovery_rate = BASE_SOIL_RECOVERY_RATE * (1 - Soil_Quality / MAX_SOIL_QUALITY) * (1 + forest_area_impact_on_soil_recovery)* (1 - (Environmental_Degradation / MAX_ENVIRONMENTAL_DEGRADATION) * ENVIRONMENTAL_DEGRADATION_IMPACT_ON_SOIL_RECOVERY)
+    UNITS: Percentage/Year
+    DOCUMENT: Rate of soil quality recovery. It slows down as soil quality approaches its maximum, and is enhanced by larger forest areas.
+: c ENVIRONMENTAL_DEGRADATION.PASTURE_SOIL_DEGRADATION_FACTOR = 0,008
+    UNITS: Dimensionless
+: c ENVIRONMENTAL_DEGRADATION.pasture_impact_on_soil_quality = LANDUSE_CONFLICTS.Pasture_Area*PASTURE_SOIL_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.DEFORESTATION_SOIL_DEGRADATION_FACTOR = 0,01
+    UNITS: Dimensionless
+: c ENVIRONMENTAL_DEGRADATION.deforestation_impact_on_soil_quality = LANDUSE_CONFLICTS.total_deforestation_rate*DEFORESTATION_SOIL_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.ILLEGAL_SOIL_DEGRADATION_FACTOR = 0,005
+    UNITS: Dimensionless
+: c ENVIRONMENTAL_DEGRADATION.illegal_activities_impact_on_soil_quality = (LANDUSE_CONFLICTS.land_grabbing_pressure_on_indigenous_land+LANDUSE_CONFLICTS.land_grabbing_pressure_on_non_indigenous_forest+LANDUSE_CONFLICTS.illegal_pasture_pressure_rate_non_indigenous+LANDUSE_CONFLICTS.illegal_pasture_pressure_on_indigenous_land+LANDUSE_CONFLICTS.illegal_logging_deforestation_rate_non_indigenous+LANDUSE_CONFLICTS.illegal_logging_pressure_on_indigenous_land)*ILLEGAL_SOIL_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: f ENVIRONMENTAL_DEGRADATION.soil_degradation_rate = (pasture_impact_on_soil_quality + deforestation_impact_on_soil_quality+illegal_activities_impact_on_soil_quality) * (Soil_Quality / MAX_SOIL_QUALITY)
+    UNITS: Percentage/Year
+    DOCUMENT: Rate of soil quality degradation due to human activities. It slows down as soil quality approaches zero.
+: c "INDIGENOUS_WELL-BEING"."WELL-BEING_ENGAGEMENT_FACTOR" = 0,00001
+    UNITS: 1/Year
+: c "INDIGENOUS_WELL-BEING"."indigenous_community_well-being_impact_on_engagement" = "Indigenous_Community_Well-Being"*"WELL-BEING_ENGAGEMENT_FACTOR"
+    UNITS: Percentage/Year
+    DOCUMENT: Higher well-being fosters greater community engagement
+: c "INDIGENOUS_WELL-BEING".institutional_capacity_for_engagement = INSTITUTIONAL_CAPACITY.Institutional_Capacity/INSTITUTIONAL_CAPACITY.MAX_INSTITUTIONAL_CAPACITY
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".policy_engagement_initiatives_impact = institutional_capacity_for_engagement+LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".Engagement_initiatives = Engagement*100
+: f "INDIGENOUS_WELL-BEING".increasing_engagement = ("indigenous_community_well-being_impact_on_engagement" + policy_engagement_initiatives_impact+Engagement_initiatives) * (1 - Indigenous_Community_Engagement / MAX_COMMUNITY_ENGAGEMENT)
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.MAX_PEOPLE_TRUST = 100
+    UNITS: Percentage
+: c "INDIGENOUS_WELL-BEING".PEOPLE_TRUST_DECLINE_FACTOR = 1
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".people_trust_in_institutions_decline = (1 - INSTITUTIONAL_CAPACITY.People_Trust_in_Institutions / INSTITUTIONAL_CAPACITY.MAX_PEOPLE_TRUST) * PEOPLE_TRUST_DECLINE_FACTOR
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".TRUST_DECLINE_ENGAGEMENT_FACTOR = 0,08
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".trust_decline_impact_on_egagement = people_trust_in_institutions_decline*TRUST_DECLINE_ENGAGEMENT_FACTOR
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".CULTURAL_EROSION_ENGAGEMENT_FACTOR = 1,2
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".CULTURAL_EROSION_BASE_RATE = 4
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING"."MAX_WELL-BEING" = 100
+    UNITS: Percentage
+: c "INDIGENOUS_WELL-BEING".cultural_erosion_contribution =  CULTURAL_EROSION_BASE_RATE   * MAX(0; (1 - "Indigenous_Community_Well-Being"/"MAX_WELL-BEING"))   * (1 - 0,2 * EDUCATION_PROGRAMMES      )
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".cultural_erosion_impact_on_indigenous_engagement = CULTURAL_EROSION_ENGAGEMENT_FACTOR*cultural_erosion_contribution
+    UNITS: Percentage/Year
+: f "INDIGENOUS_WELL-BEING".decreasing_engagement = ((trust_decline_impact_on_egagement+cultural_erosion_impact_on_indigenous_engagement)*Indigenous_Community_Engagement/MAX_COMMUNITY_ENGAGEMENT)
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".BASE_ACCESS_TO_MARKET = 0,35
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".access_to_market = BASE_ACCESS_TO_MARKET
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".BASE_FINANCIAL_SUPPORT = 0,12
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".financial_support_handicraft = BASE_FINANCIAL_SUPPORT
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".COMMUNITY_SUPPORT_FACTOR = 0,01
+    UNITS: 1/Percentage
+: c "INDIGENOUS_WELL-BEING".community_support_handicraft = (Indigenous_Community_Engagement+2*Women_Engagement+2*Indigenous_Knowledge)*COMMUNITY_SUPPORT_FACTOR
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".MAX_HANDICRAFT_ACTIVITIES = 100
+    UNITS: Percentage
+: c "INDIGENOUS_WELL-BEING".empowerment_impact_on_creation = FINANCING_TRAINING_IMPACT
+: f "INDIGENOUS_WELL-BEING".handicraft_creation = (availability_of_raw_material_for_handicraft * access_to_market * financial_support_handicraft * community_support_handicraft) * (1 - Handicraft_Activities / MAX_HANDICRAFT_ACTIVITIES) * (1 + MARKET_ACCESS_FACTOR) + empowerment_impact_on_creation + AWARENESS_CAMPAIGNS+EDUCATION_PROGRAMMES+(INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation/2)
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".COMPETITION_PRESSURE_HANDICRAFT = 0,015
+    UNITS: 1/Year
+: c "INDIGENOUS_WELL-BEING".MARKET_ACCESS_IMPACT_ON_COMPETITION = IF TIME > 2030 THEN Increase_market_accessibility ELSE 0
+: f "INDIGENOUS_WELL-BEING".handicraft_closure = Handicraft_Activities * COMPETITION_PRESSURE_HANDICRAFT * (1 - MARKET_ACCESS_IMPACT_ON_COMPETITION)
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".handicraft_activities_contribution_to_knowledge = Handicraft_Activities * (Handicraft_Activities / MAX_HANDICRAFT_ACTIVITIES)
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".ENGAGEMENT_KNOWLEDGE_FACTOR = 0,00001
+    UNITS: 1/Percentage/Year
+: c "INDIGENOUS_WELL-BEING".engagement_contribution_to_knowledge = (Indigenous_Community_Engagement+Women_Engagement)*ENGAGEMENT_KNOWLEDGE_FACTOR+4*COOPERATIVES_PROMOTION
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".MAX_INDIGENOUS_KNOWLEDGE = 100
+    UNITS: Percentage
+: f "INDIGENOUS_WELL-BEING".knowledge_gain_rate =   (4*handicraft_activities_contribution_to_knowledge + engagement_contribution_to_knowledge) * (1 - Indigenous_Knowledge/MAX_INDIGENOUS_KNOWLEDGE)
+    UNITS: Percentage/Year
+: f "INDIGENOUS_WELL-BEING".knowledge_loss_rate = ((cultural_erosion_contribution)*Indigenous_Knowledge/MAX_INDIGENOUS_KNOWLEDGE)
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING"."HANDICRAFT_WELL-BEING_FACTOR" = 0,00001
+    UNITS: 1/Year
+: c "INDIGENOUS_WELL-BEING"."handicraft_contribution_to_well-being" = (Handicraft_Activities * "HANDICRAFT_WELL-BEING_FACTOR")
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING"."ENVIRONMENTAL_WELL-BEING_FACTOR" = 0,00001
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING"."environmental_quality_contribution_to_well-being" = (1-ENVIRONMENTAL_DEGRADATION.Environmental_Degradation/ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION)*"ENVIRONMENTAL_WELL-BEING_FACTOR"*(ENVIRONMENTAL_DEGRADATION.Soil_Quality/ENVIRONMENTAL_DEGRADATION.MAX_SOIL_QUALITY)
+    UNITS: Percentage/Year
+    DOCUMENT: Contribution of environmental quality (low degradation, high soil quality) to indigenous well-being.
+: c "INDIGENOUS_WELL-BEING"."KNOWLEDGE_WELL-BEING_FACTOR" = 0,00001
+    UNITS: 1/Year
+: c "INDIGENOUS_WELL-BEING"."indigenous_knowledge_contribution_to_well-being" = Indigenous_Knowledge*"KNOWLEDGE_WELL-BEING_FACTOR"
+    UNITS: Percentage/Year
+: f "INDIGENOUS_WELL-BEING"."well-being_increase" = ("handicraft_contribution_to_well-being"+"environmental_quality_contribution_to_well-being"+"indigenous_knowledge_contribution_to_well-being"+0,9*INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation)*(1-"Indigenous_Community_Well-Being"/"MAX_WELL-BEING")
+    UNITS: Percentage/Year
+    DOCUMENT: Factors contributing to the increase in indigenous well-being. Slows down as max well-being is approached.
+: c "INDIGENOUS_WELL-BEING".RESOURCE_SCARCITY_IMPACT_FACTOR = 0,02
+    UNITS: 1/Year
+: c "INDIGENOUS_WELL-BEING".resources_scarcity_impact = ( (ENVIRONMENTAL_DEGRADATION.Environmental_Degradation / ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION) + (1 - ENVIRONMENTAL_DEGRADATION.Soil_Quality / ENVIRONMENTAL_DEGRADATION.MAX_SOIL_QUALITY) ) / 2 * RESOURCE_SCARCITY_IMPACT_FACTOR
+    UNITS: 1/Year
+: c "INDIGENOUS_WELL-BEING".SOCIAL_DISRUPTION_IMPACT_AMPLIFIER = 0,2
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".BASE_SOCIAL_DISRUPTION_IMPACT_RATE = 0,1
+    UNITS: 1/Year
+: c "INDIGENOUS_WELL-BEING".social_disruption_impact = ( (cultural_erosion_contribution / CULTURAL_EROSION_BASE_RATE) * SOCIAL_DISRUPTION_IMPACT_AMPLIFIER * BASE_SOCIAL_DISRUPTION_IMPACT_RATE)/(Women_Engagement/100)
+    UNITS: 1/Year
+: f "INDIGENOUS_WELL-BEING"."well-being_decrease" = (resources_scarcity_impact+social_disruption_impact)*"Indigenous_Community_Well-Being"
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".BASE_WOMEN_ACCESS_TO_RESOURCES = 0,001
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".HANDICRAFT_IMPACT_ON_WOMEN_RESOURCES = 0,001
+    UNITS: Dimensionless/Percentage
+: c "INDIGENOUS_WELL-BEING".women_access_to_resources = BASE_WOMEN_ACCESS_TO_RESOURCES * (1 + Handicraft_Activities * HANDICRAFT_IMPACT_ON_WOMEN_RESOURCES) + FINANCING_TRAINING_IMPACT
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".BASE_WOMEN_INITATIVES = 0,001
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".institutional_capacity_for_women_initiatives = INSTITUTIONAL_CAPACITY.Institutional_Capacity/INSTITUTIONAL_CAPACITY.MAX_INSTITUTIONAL_CAPACITY
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".women_engagement_initiatives_impact = (BASE_WOMEN_INITATIVES*institutional_capacity_for_women_initiatives)+Women_engagement_initiatives
+    UNITS: Dimensionless/Year
+: c "INDIGENOUS_WELL-BEING".MAX_WOMEN_ENGAGEMENT = 100
+    UNITS: Percentage
+: f "INDIGENOUS_WELL-BEING".women_engagement_increase_rate = (women_access_to_resources+women_engagement_initiatives_impact)*(1-Women_Engagement/MAX_WOMEN_ENGAGEMENT)
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".BASE_CULTURAL_BARRIERS = 0,05
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".cultural_barriers_to_engagement = BASE_CULTURAL_BARRIERS*(1-Indigenous_Knowledge/MAX_INDIGENOUS_KNOWLEDGE)
+    UNITS: Percentage/Year
+    DOCUMENT: Traditional knowledge may reduce barriers
+: c "INDIGENOUS_WELL-BEING".CULTURAL_EROSION_WOMEN_FACTOR = 1
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".cultural_erosion_impact_on_women_engagement = cultural_erosion_contribution*CULTURAL_EROSION_WOMEN_FACTOR
+    UNITS: Percentage/Year
+: f "INDIGENOUS_WELL-BEING".women_engagement_reduction_rate = ((cultural_barriers_to_engagement+cultural_erosion_impact_on_women_engagement)*Women_Engagement/MAX_WOMEN_ENGAGEMENT)
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".BASE_ENGAGEMENT_INITIATIVES = 0,00001
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".HANDICRAFT_KNOWLEDGE_FACTOR = 0,00001
+    UNITS: 1/Percentage/Year
+: c "INDIGENOUS_WELL-BEING".Social_disruption_barrier = social_disruption_impact*100
+: c INSTITUTIONAL_CAPACITY.EDUCATION_CAMPAIGNS_EFFECTIVENESS = 0,1
+    UNITS: Dimensionless
+: c INSTITUTIONAL_CAPACITY.BASE_INFORMATION_SHARING = 10
+    UNITS: Percentage
+: c INSTITUTIONAL_CAPACITY.information_sharing_effectiveness = IF Institutional_Capacity < 40 THEN 10 ELSE IF Institutional_Capacity < 80 THEN 70 ELSE 100
+    UNITS: Percentage
+: c INSTITUTIONAL_CAPACITY.information_sharing_with_the_community = BASE_INFORMATION_SHARING   + (Environmental_Monitoring_Effectiveness * information_sharing_effectiveness)   + ("INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement * 0,03)   + 2 * "INDIGENOUS_WELL-BEING".EDUCATION_PROGRAMMES   + 3 * "INDIGENOUS_WELL-BEING".AWARENESS_CAMPAIGNS
+    UNITS: Percentage
+: c INSTITUTIONAL_CAPACITY.MAX_DEFORESTATION_AWARENESS = 100
+    UNITS: Percentage
+: f INSTITUTIONAL_CAPACITY.increasing_awareness =   EDUCATION_CAMPAIGNS_EFFECTIVENESS * information_sharing_with_the_community   * (1 - Deforestation_Awareness / MAX_DEFORESTATION_AWARENESS)   + 0,2 * "INDIGENOUS_WELL-BEING".EDUCATION_PROGRAMMES   + 0,3 * "INDIGENOUS_WELL-BEING".AWARENESS_CAMPAIGNS
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.AWARENESS_DECAY_RATE = 0,1
+    UNITS: 1/Year
+: f INSTITUTIONAL_CAPACITY.decreasing_awareness = Deforestation_Awareness*AWARENESS_DECAY_RATE
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.TRAINING_INVESTMENTS = Policy_coordination_and_cooperation
+    UNITS: Percentage/Year
+    DOCUMENT: Level of investments in institutional personal training
+: c INSTITUTIONAL_CAPACITY.training_investments_effective = TRAINING_INVESTMENTS+1*"INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT
+: c INSTITUTIONAL_CAPACITY.TRAINING_INVESTMENT_EFFECTIVENESS = 0,05
+    UNITS: Dimensionless
+    DOCUMENT: Effectiveness of investments in training.
+: c INSTITUTIONAL_CAPACITY.BASE_INSTITUTIONS_LEVEL_OF_COOPERATION = 0,1
+    UNITS: Dimensionless
+: c INSTITUTIONAL_CAPACITY.INSTITUTIONS_LEVEL_OF_COOPERATION = BASE_INSTITUTIONS_LEVEL_OF_COOPERATION+1*"INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION+Policy_coordination_and_cooperation
+: c INSTITUTIONAL_CAPACITY.INVESTMENTS_IN_INSTITUTIONAL_COOPERATION = Policy_coordination_and_cooperation
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.TRUST_CAPACITY_FACTOR = 0,01
+    UNITS: 1/Year
+: c INSTITUTIONAL_CAPACITY.people_trust_in_institutions_impact_on_capacity = People_Trust_in_Institutions*TRUST_CAPACITY_FACTOR+TRACEABILITY_SYSTEMS
+    UNITS: Percentage/Year
+: f INSTITUTIONAL_CAPACITY.increasing_capacity =   ( training_investments_effective * TRAINING_INVESTMENT_EFFECTIVENESS * (0,5 + 0,3*MIN(1; "INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT                   + "INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION))   + INSTITUTIONS_LEVEL_OF_COOPERATION * INVESTMENTS_IN_INSTITUTIONAL_COOPERATION * (0,5 + 0,3*MIN(1; "INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT                   + "INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION))   + people_trust_in_institutions_impact_on_capacity * (0,5 + 0,2*public_awareness) )   * (1 - Institutional_Capacity / MAX_INSTITUTIONAL_CAPACITY)   + 0,2 * LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES   + 0,3 * LANDUSE_CONFLICTS.Secure_indigenous_land_right
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.INSTITUTIONAL_INSTABILITY = 0,3
+    UNITS: Dimensionless
+: c INSTITUTIONAL_CAPACITY.CORRUPTION_LEVEL = 0,8
+    UNITS: Dimensionless
+: f INSTITUTIONAL_CAPACITY.decreasing_capacity = (INSTITUTIONAL_INSTABILITY * CORRUPTION_LEVEL*2) * Institutional_Capacity / MAX_INSTITUTIONAL_CAPACITY
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.ENVIRONMENTAL_MONITORING_FUNDING = Enhance_environmental_monitoring
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.REQUIRED_MONITORING_FUNDING = 1
+    UNITS: Dimensionless
+: c INSTITUTIONAL_CAPACITY.institutional_capacity_impact_on_monitoring = Institutional_Capacity/MAX_INSTITUTIONAL_CAPACITY
+    UNITS: Dimensionless
+: c INSTITUTIONAL_CAPACITY.EFFECTIVENESS_BUILD_RATE = Enhance_environmental_monitoring
+    UNITS: Dimensionless
+: c INSTITUTIONAL_CAPACITY.MAX_MONITORING_EFFECTIVENESS = 100
+    UNITS: Percentage
+: f INSTITUTIONAL_CAPACITY.monitoring_increase = (ENVIRONMENTAL_MONITORING_FUNDING/ REQUIRED_MONITORING_FUNDING) * institutional_capacity_impact_on_monitoring * EFFECTIVENESS_BUILD_RATE * 50*(1 - Environmental_Monitoring_Effectiveness / MAX_MONITORING_EFFECTIVENESS)
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.BASE_DECAY_RATE_MONITORING = 0,05
+    UNITS: 1/Year
+    DOCUMENT: Base rate of deterioration in monitoring effectiveness.
+: f INSTITUTIONAL_CAPACITY.monitoring_decrease = Environmental_Monitoring_Effectiveness * BASE_DECAY_RATE_MONITORING *(1+ (1 - Institutional_Capacity / MAX_INSTITUTIONAL_CAPACITY)*0,5)
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.TRUST_GAIN_PER_PARTICIPATION = 0,2
+    UNITS: Dimensionless
+    DOCUMENT: Gain in trust per unit of participation in the indigenous community.
+: c INSTITUTIONAL_CAPACITY.TRUST_GAIN_FOR_WELL_BEING = 0,5
+    UNITS: Dimensionless
+    DOCUMENT: Gain in trust per unit of well-being of the indigenous community.
+: c INSTITUTIONAL_CAPACITY.TRUST_GAINED_PER_INFORMATION_UNIT = 0,1
+    UNITS: Dimensionless
+    DOCUMENT: Gain in trust per unit of information shared with the community.
+: c INSTITUTIONAL_CAPACITY.TRUST_BONUS_AWARE = 0,05
+: f INSTITUTIONAL_CAPACITY.trust_increase =  MIN(   ("INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement * TRUST_GAIN_PER_PARTICIPATION * 0,01) + ("INDIGENOUS_WELL-BEING"."Indigenous_Community_Well-Being" * TRUST_GAIN_FOR_WELL_BEING * 0,01)+  ("INDIGENOUS_WELL-BEING".Women_Engagement * TRUST_GAIN_PER_PARTICIPATION * 0,01) + (information_sharing_with_the_community * TRUST_GAINED_PER_INFORMATION_UNIT * 0,01) + TRACEABILITY_SYSTEMS + TRUST_BONUS_AWARE * public_awareness ; (MAX_PEOPLE_TRUST - People_Trust_in_Institutions))
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.TRUST_REDUCTION_PER_CORRUPTION = 0,5
+    UNITS: Dimensionless
+: f INSTITUTIONAL_CAPACITY.trust_decrease = MIN(  CORRUPTION_LEVEL * (1 - 0,25*public_awareness) * TRUST_REDUCTION_PER_CORRUPTION * 5 * People_Trust_in_Institutions / MAX_PEOPLE_TRUST ;   People_Trust_in_Institutions )
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.Awareness_barrier = 100-Deforestation_Awareness
+: c INSTITUTIONAL_CAPACITY.Monitoring_barrier = 100-Environmental_Monitoring_Effectiveness
+: c INSTITUTIONAL_CAPACITY.Trust_barrier = 100-People_Trust_in_Institutions
+: c LANDUSE_CONFLICTS.Policy_enforcement_barrier = 100-(forest_protection_policy_effectiveness*100)
+
+{ RUNTIME EQUATIONS }
+: s ENVIRONMENTAL_DEGRADATION.Environmental_Degradation(t) = Environmental_Degradation(t - dt) + (degradation_rate - environmental_recovery_rate) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+    DOCUMENT: Aggregate indicator of environmental health. Higher values mean more degradation.
+: s ENVIRONMENTAL_DEGRADATION.Soil_Quality(t) = Soil_Quality(t - dt) + (soil_recovery_rate - soil_degradation_rate) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+: s "INDIGENOUS_WELL-BEING".Handicraft_Activities(t) = Handicraft_Activities(t - dt) + (handicraft_creation - handicraft_closure) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+: s "INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement(t) = Indigenous_Community_Engagement(t - dt) + (increasing_engagement - decreasing_engagement) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+: s "INDIGENOUS_WELL-BEING"."Indigenous_Community_Well-Being"(t) = "Indigenous_Community_Well-Being"(t - dt) + ("well-being_increase" - "well-being_decrease") * dt {NON-NEGATIVE}
+    UNITS: Percentage
+: s "INDIGENOUS_WELL-BEING".Indigenous_Knowledge(t) = Indigenous_Knowledge(t - dt) + (knowledge_gain_rate - knowledge_loss_rate) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+    DOCUMENT: Represents the vitality and transmission of traditional indigenous knowledge
+: s "INDIGENOUS_WELL-BEING".Women_Engagement(t) = Women_Engagement(t - dt) + (women_engagement_increase_rate - women_engagement_reduction_rate) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+: s INSTITUTIONAL_CAPACITY.Deforestation_Awareness(t) = Deforestation_Awareness(t - dt) + (increasing_awareness - decreasing_awareness) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+: s INSTITUTIONAL_CAPACITY.Environmental_Monitoring_Effectiveness(t) = Environmental_Monitoring_Effectiveness(t - dt) + (monitoring_increase - monitoring_decrease) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+: s INSTITUTIONAL_CAPACITY.Institutional_Capacity(t) = Institutional_Capacity(t - dt) + (increasing_capacity - decreasing_capacity) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+: s INSTITUTIONAL_CAPACITY.People_Trust_in_Institutions(t) = People_Trust_in_Institutions(t - dt) + (trust_increase - trust_decrease) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+: s LANDUSE_CONFLICTS.Cleared_Land_Area(t) = Cleared_Land_Area(t - dt) + (newly_cleared_land - conversion_to_pasture_area - conversion_to_legal_timber_extraction) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+    DOCUMENT: Mapbiomas data for Rondônia
+: s LANDUSE_CONFLICTS.Forest_Area(t) = Forest_Area(t - dt) + (forest_recovery_rate - total_deforestation_rate) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+    DOCUMENT: Total forest area including Indigenous Forest Area.
+: s LANDUSE_CONFLICTS.Indigenous_Forest_Area(t) = Indigenous_Forest_Area(t - dt) + (forest_recovery_rate_in_indigenous_land - deforestation_in_indigenous_land) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+    DOCUMENT: Percentage of the total area that is Forest and also legally recognized as Indigenous Land. This area benefits from special protection but is still subject to pressures.
+: s LANDUSE_CONFLICTS.Legal_Timber_Extraction_Area(t) = Legal_Timber_Extraction_Area(t - dt) + (conversion_to_legal_timber_extraction - legal_timber_extraction_abandonment_rate) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+    DOCUMENT: Mapbiomas data for Rondônia
+: s LANDUSE_CONFLICTS.Pasture_Area(t) = Pasture_Area(t - dt) + (conversion_to_pasture_area - pasture_abandonment_rate) * dt {NON-NEGATIVE}
+    UNITS: Percentage
+    DOCUMENT: Mapbiomas data for Rondônia
+: c ENVIRONMENTAL_DEGRADATION.forest_area_impact_on_soil_recovery = LANDUSE_CONFLICTS.Forest_Area / (INIT (LANDUSE_CONFLICTS.Forest_Area * 2))
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".availability_of_raw_material_for_handicraft = (LANDUSE_CONFLICTS.Indigenous_Forest_Area/INIT (LANDUSE_CONFLICTS.Indigenous_Forest_Area)) * (1 - 2*ENVIRONMENTAL_DEGRADATION.Environmental_Degradation/ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION) * BASE_RAW_MATERIAL_AVAILABILITY+ 3*LANDUSE_CONFLICTS.Secure_indigenous_land_right
+    DOCUMENT: More indigenous forest area, more material
+: c LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES = IF TIME > 2030 THEN Forest_conservation_policy ELSE 0
+: f LANDUSE_CONFLICTS.forest_recovery_rate =  BASE_FOREST_RECOVERY_RATE + FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES {UNIFLOW}
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.CONSECUTIVE_DRY_DAYS = GRAPH(TIME)
+Points: (1,00, 55,0), (5,00, 42,0), (10,00, 62,0), (15,00, 55,3), (20,00, 50,0), (25,00, 61,0), (30,00, 53,0), (35,00, 55,1), (40,00, 52,9), (45,00, 55,0), (50,00, 40,0)
+    UNITS: Days
+    DOCUMENT: Values from D3.8 using SSP2-4.5 
+: c LANDUSE_CONFLICTS.climate_dryness_effect = IF CONSECUTIVE_DRY_DAYS < 10 THEN 1  ELSE IF CONSECUTIVE_DRY_DAYS < 30 THEN 1,5  ELSE IF CONSECUTIVE_DRY_DAYS < 50 THEN 1,8  ELSE 2
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".AWARENESS_CAMPAIGNS = IF TIME > 2030 THEN Women_engagement_initiatives ELSE 0
+: c "INDIGENOUS_WELL-BEING".EDUCATION_PROGRAMMES = IF TIME > 2035 THEN Education_and_knowledge_transfer ELSE 0
+: c "INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION = IF TIME > 2035 THEN Community_engagement ELSE 0
+: c INSTITUTIONAL_CAPACITY.public_awareness = "INDIGENOUS_WELL-BEING".AWARENESS_CAMPAIGNS + 2*"INDIGENOUS_WELL-BEING".EDUCATION_PROGRAMMES+4*"INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION
+: c LANDUSE_CONFLICTS.human_induced_fire_rate =  BASE_HUMAN_FIRE_RATE * climate_dryness_effect * (1 - 0,2 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.fire_induced_deforestation_rate = (human_induced_fire_rate)*(Forest_Area/100)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.PASTURE_PROFITABILITY_FACTOR = 2 * (1 - 0,1 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Dimensionless
+    DOCUMENT: Economic return from grazing expansion on a scale of 0 to 2 (1=basic situation)
+: c LANDUSE_CONFLICTS.pasture_expansion_demand_rate =   BASE_PASTURE_EXPANSION_RATE * PASTURE_PROFITABILITY_FACTOR   * (1 - Pasture_Area/MAX_PASTURE_AREA_LIMIT)   * (1 - 0,3 * "INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement/"INDIGENOUS_WELL-BEING".MAX_COMMUNITY_ENGAGEMENT)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.illegal_logging_deforestation_rate_non_indigenous = ILLEGAL_LOGGING_PRESSURE_NON_INDIGENOUS*(Forest_Area-Indigenous_Forest_Area)*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+    DOCUMENT: This represents the annual rate at which forest area is lost due to illegal logging activities, contributing to overall deforestation.
+: c LANDUSE_CONFLICTS.land_grabbing_pressure_on_non_indigenous_forest = LAND_GRABBING_BASE_RATE * CLEARING_EFFECTIVENESS_FACTOR * (Forest_Area - Indigenous_Forest_Area) / Forest_Area
+    UNITS: Percentage/Year
+    DOCUMENT: Pressure from land grabbing on non-indigenous parts of the forest
+: c LANDUSE_CONFLICTS.TIMBER_CLEARING_FACTOR = 0,1 * (1 - 0,1 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.legal_timber_clearing_demand_rate = TOTAL_TIMBER_DEMAND*TIMBER_CLEARING_FACTOR
+    UNITS: Percentage/Year
+    DOCUMENT: This rate reflects how much new forest area needs to be cleared each year to meet the legal timber demand. It's the part of the total demand that leads to direct deforestation for legal timber production, converting forest into cleared land. Assumed to be on non-Indigenous forest only.
+: c LANDUSE_CONFLICTS.illegal_pasture_pressure_rate_non_indigenous = BASE_ILLEGAL_PASTURE_RATE*(1+(PASTURE_PROFITABILITY_FACTOR-1))*ILLEGAL_PASTURE_ENFORCEMENT_FACTOR* (Forest_Area - Indigenous_Forest_Area) / Forest_Area*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.deforestation_from_clearing = pasture_expansion_demand_rate+illegal_logging_deforestation_rate_non_indigenous+land_grabbing_pressure_on_non_indigenous_forest+legal_timber_clearing_demand_rate+illegal_pasture_pressure_rate_non_indigenous
+    UNITS: Percentage/Year
+: f LANDUSE_CONFLICTS.forest_recovery_rate_in_indigenous_land = BASE_FOREST_RECOVERY_RATE_INDIGENOUS * (1 - Indigenous_Forest_Area/MAX_INDIGENOUS_FOREST_AREA) + FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES+Secure_indigenous_land_right {UNIFLOW}
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.land_grabbing_pressure_on_indigenous_land = (LAND_GRABBING_BASE_RATE * CLEARING_EFFECTIVENESS_FACTOR)* (Indigenous_Forest_Area / Forest_Area)*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.lack_of_property_right_factor = (1/(INSTITUTIONAL_CAPACITY.Institutional_Capacity/INSTITUTIONAL_CAPACITY.MAX_INSTITUTIONAL_CAPACITY *"INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement/"INDIGENOUS_WELL-BEING".MAX_COMMUNITY_ENGAGEMENT))
+: c LANDUSE_CONFLICTS.property_rights_effectiveness = 1/(1+lack_of_property_right_factor)
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".MARKET_ACCESS_FACTOR = IF TIME > 2030 THEN Increase_market_accessibility ELSE 0
+: c INSTITUTIONAL_CAPACITY.TRACEABILITY_SYSTEMS = IF TIME > 2035 THEN "INDIGENOUS_WELL-BEING".Increase_market_accessibility ELSE 0
+: c "INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT = IF TIME > 2030 THEN Training_and_capacity_building ELSE 0
+: c LANDUSE_CONFLICTS.forest_protection_policy_effectiveness = BASE_FOREST_POLICY + (INSTITUTIONAL_CAPACITY.Institutional_Capacity/INSTITUTIONAL_CAPACITY.MAX_INSTITUTIONAL_CAPACITY * "INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement/"INDIGENOUS_WELL-BEING".MAX_COMMUNITY_ENGAGEMENT ) + 0,09*"INDIGENOUS_WELL-BEING".MARKET_ACCESS_FACTOR   + 0,09*INSTITUTIONAL_CAPACITY.TRACEABILITY_SYSTEMS+0,9*"INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT+0,9*"INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION+0,9*INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation
+    UNITS: Dimensionless
+: c LANDUSE_CONFLICTS.illegal_logging_pressure_on_indigenous_land = ILLEGAL_LOGGING_PRESSURE_INDIGENOUS * Indigenous_Forest_Area* (1-(property_rights_effectiveness+forest_protection_policy_effectiveness))*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.illegal_pasture_pressure_on_indigenous_land = (BASE_ILLEGAL_PASTURE_RATE_INDIGENOUS * (1+(PASTURE_PROFITABILITY_FACTOR-1)) * ILLEGAL_PASTURE_ENFORCEMENT_FACTOR * (Indigenous_Forest_Area / Forest_Area))*1 - MIN(0,3; 0,5 * INSTITUTIONAL_CAPACITY.public_awareness)
+    UNITS: Percentage/Year
+: f LANDUSE_CONFLICTS.deforestation_in_indigenous_land = (land_grabbing_pressure_on_indigenous_land+illegal_logging_pressure_on_indigenous_land+illegal_pasture_pressure_on_indigenous_land) {UNIFLOW}
+    UNITS: Percentage/Year
+    DOCUMENT: Rate of deforestation occurring specifically within Indigenous Forest Areas
+: f LANDUSE_CONFLICTS.total_deforestation_rate =  (fire_induced_deforestation_rate + deforestation_from_clearing + deforestation_in_indigenous_land) * (1 -( forest_protection_policy_effectiveness)) {UNIFLOW}
+    UNITS: Percentage/Year
+: f LANDUSE_CONFLICTS.pasture_abandonment_rate = Pasture_Area*PASTURE_ABANDONMENT_FACTOR {UNIFLOW}
+    UNITS: Percentage/Year
+: c LANDUSE_CONFLICTS.legal_timber_expansion_rate = TOTAL_TIMBER_DEMAND*TIMBER_EXPANSION_FACTOR
+    UNITS: Percentage/Year
+    DOCUMENT: This rate indicates how quickly the dedicated 'Legal Timber Extraction Areas' are expanding each year. It's driven by the overall timber demand and represents the growth of land specifically managed for legal timber harvesting.
+: f LANDUSE_CONFLICTS.conversion_to_pasture_area = pasture_expansion_demand_rate*PASTURE_CONVERSION_EFFICIENCY*(DELAY((Cleared_Land_Area); 2)) {UNIFLOW}
+    OUTFLOW PRIORITY: 1
+    UNITS: Percentage/Year
+    DOCUMENT: Cleared land area available for pasture conversion after a delay period.
+: f LANDUSE_CONFLICTS.conversion_to_legal_timber_extraction = legal_timber_expansion_rate*TIMBER_CONVERSION_EFFICIENCY*(Cleared_Land_Area/100) {UNIFLOW}
+    OUTFLOW PRIORITY: 2
+    UNITS: Percentage/Year
+: f LANDUSE_CONFLICTS.legal_timber_extraction_abandonment_rate = Legal_Timber_Extraction_Area*LEGAL_TIMBER_ABANDONMENT_FACTOR {UNIFLOW}
+    UNITS: Percentage/Year
+: f LANDUSE_CONFLICTS.newly_cleared_land = total_deforestation_rate+pasture_abandonment_rate+legal_timber_extraction_abandonment_rate {UNIFLOW}
+    UNITS: Percentage/Year
+    DOCUMENT: All deforested land first becomes 'Cleared_land' before conversion
+: c Overall_strategy_cost = ("INDIGENOUS_WELL-BEING".Increase_market_accessibility*Market_access_cost)+(land_right_cost*LANDUSE_CONFLICTS.Secure_indigenous_land_right)+("INDIGENOUS_WELL-BEING".Women_engagement_initiatives*Women_Engagement_cost)+("INDIGENOUS_WELL-BEING".Education_and_knowledge_transfer*Education_cost)+("INDIGENOUS_WELL-BEING".Training_and_capacity_building*Training_costs)+(INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation*Coordination_costs)+(Engagement_cost*"INDIGENOUS_WELL-BEING".Engagement)+(Forest_restoration_cost*LANDUSE_CONFLICTS.Forest_conservation_policy)+(Monitoring_cost*INSTITUTIONAL_CAPACITY.Enhance_environmental_monitoring)
+: c ENVIRONMENTAL_DEGRADATION.deforestation_impact_on_environmental_degradation = LANDUSE_CONFLICTS.total_deforestation_rate * DEFORESTATION_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.pasture_expansion_impact_on_environmental_degradation = LANDUSE_CONFLICTS.pasture_expansion_demand_rate*PASTURE_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.fire_impact_on_degradation = LANDUSE_CONFLICTS.fire_induced_deforestation_rate*FIRE_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.illegal_activities_impact_on_environmental_degradation = (LANDUSE_CONFLICTS.illegal_logging_deforestation_rate_non_indigenous+LANDUSE_CONFLICTS.illegal_pasture_pressure_on_indigenous_land+LANDUSE_CONFLICTS.illegal_logging_pressure_on_indigenous_land+LANDUSE_CONFLICTS.illegal_pasture_pressure_rate_non_indigenous+LANDUSE_CONFLICTS.land_grabbing_pressure_on_non_indigenous_forest+LANDUSE_CONFLICTS.land_grabbing_pressure_on_indigenous_land) * ILLEGAL_ACTIVITIES_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+    DOCUMENT: Combined impact of all illegal activities (both indigenous and non-indigenous areas) on environmental degradation. The impact of illegal activities on the environment is not only a function of the area converted/deforested, but also of the way in which the activity is conducted, and this method is inherently more destructive when the activity is illegal and unregulated.
+: c ENVIRONMENTAL_DEGRADATION.conservation_impact_on_degradation = LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES+1,5*INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation
+: f ENVIRONMENTAL_DEGRADATION.degradation_rate = (deforestation_impact_on_environmental_degradation + pasture_expansion_impact_on_environmental_degradation + fire_impact_on_degradation + illegal_activities_impact_on_environmental_degradation) * (1 - Environmental_Degradation / MAX_ENVIRONMENTAL_DEGRADATION)* (1 + (1 - Soil_Quality / MAX_SOIL_QUALITY) * SOIL_DEGRADATION_AMPLIFIER)-conservation_impact_on_degradation {UNIFLOW}
+    UNITS: Percentage/Year
+    DOCUMENT: Total rate of environmental degradation, influenced by various human activities. The (1 - ...) term ensures it slows down as degradation approaches its maximum.
+: c ENVIRONMENTAL_DEGRADATION.environmental_policy_effectiveness = Base_policy_effectiveness*(INSTITUTIONAL_CAPACITY.Institutional_Capacity+INSTITUTIONAL_CAPACITY.Environmental_Monitoring_Effectiveness)
+    UNITS: Dimensionless
+    DOCUMENT: Overall effectiveness of environmental policies (0=none, 1=perfect). Higher values enhance recovery.
+: f ENVIRONMENTAL_DEGRADATION.environmental_recovery_rate = BASE_ENVIRONMENTAL_RECOVERY_RATE * (1 + environmental_policy_effectiveness) * (Environmental_Degradation / MAX_ENVIRONMENTAL_DEGRADATION) {UNIFLOW}
+    UNITS: Percentage/Year
+    DOCUMENT: Rate of environmental recovery, enhanced by policy effectiveness and faster when degradation is high.
+: f ENVIRONMENTAL_DEGRADATION.soil_recovery_rate = BASE_SOIL_RECOVERY_RATE * (1 - Soil_Quality / MAX_SOIL_QUALITY) * (1 + forest_area_impact_on_soil_recovery)* (1 - (Environmental_Degradation / MAX_ENVIRONMENTAL_DEGRADATION) * ENVIRONMENTAL_DEGRADATION_IMPACT_ON_SOIL_RECOVERY) {UNIFLOW}
+    UNITS: Percentage/Year
+    DOCUMENT: Rate of soil quality recovery. It slows down as soil quality approaches its maximum, and is enhanced by larger forest areas.
+: c ENVIRONMENTAL_DEGRADATION.pasture_impact_on_soil_quality = LANDUSE_CONFLICTS.Pasture_Area*PASTURE_SOIL_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.deforestation_impact_on_soil_quality = LANDUSE_CONFLICTS.total_deforestation_rate*DEFORESTATION_SOIL_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: c ENVIRONMENTAL_DEGRADATION.illegal_activities_impact_on_soil_quality = (LANDUSE_CONFLICTS.land_grabbing_pressure_on_indigenous_land+LANDUSE_CONFLICTS.land_grabbing_pressure_on_non_indigenous_forest+LANDUSE_CONFLICTS.illegal_pasture_pressure_rate_non_indigenous+LANDUSE_CONFLICTS.illegal_pasture_pressure_on_indigenous_land+LANDUSE_CONFLICTS.illegal_logging_deforestation_rate_non_indigenous+LANDUSE_CONFLICTS.illegal_logging_pressure_on_indigenous_land)*ILLEGAL_SOIL_DEGRADATION_FACTOR
+    UNITS: Percentage/Year
+: f ENVIRONMENTAL_DEGRADATION.soil_degradation_rate = (pasture_impact_on_soil_quality + deforestation_impact_on_soil_quality+illegal_activities_impact_on_soil_quality) * (Soil_Quality / MAX_SOIL_QUALITY) {UNIFLOW}
+    UNITS: Percentage/Year
+    DOCUMENT: Rate of soil quality degradation due to human activities. It slows down as soil quality approaches zero.
+: c "INDIGENOUS_WELL-BEING"."indigenous_community_well-being_impact_on_engagement" = "Indigenous_Community_Well-Being"*"WELL-BEING_ENGAGEMENT_FACTOR"
+    UNITS: Percentage/Year
+    DOCUMENT: Higher well-being fosters greater community engagement
+: c "INDIGENOUS_WELL-BEING".institutional_capacity_for_engagement = INSTITUTIONAL_CAPACITY.Institutional_Capacity/INSTITUTIONAL_CAPACITY.MAX_INSTITUTIONAL_CAPACITY
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".policy_engagement_initiatives_impact = institutional_capacity_for_engagement+LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".Engagement_initiatives = Engagement*100
+: f "INDIGENOUS_WELL-BEING".increasing_engagement = ("indigenous_community_well-being_impact_on_engagement" + policy_engagement_initiatives_impact+Engagement_initiatives) * (1 - Indigenous_Community_Engagement / MAX_COMMUNITY_ENGAGEMENT) {UNIFLOW}
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".people_trust_in_institutions_decline = (1 - INSTITUTIONAL_CAPACITY.People_Trust_in_Institutions / INSTITUTIONAL_CAPACITY.MAX_PEOPLE_TRUST) * PEOPLE_TRUST_DECLINE_FACTOR
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".trust_decline_impact_on_egagement = people_trust_in_institutions_decline*TRUST_DECLINE_ENGAGEMENT_FACTOR
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".cultural_erosion_contribution =  CULTURAL_EROSION_BASE_RATE   * MAX(0; (1 - "Indigenous_Community_Well-Being"/"MAX_WELL-BEING"))   * (1 - 0,2 * EDUCATION_PROGRAMMES      )
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".cultural_erosion_impact_on_indigenous_engagement = CULTURAL_EROSION_ENGAGEMENT_FACTOR*cultural_erosion_contribution
+    UNITS: Percentage/Year
+: f "INDIGENOUS_WELL-BEING".decreasing_engagement = ((trust_decline_impact_on_egagement+cultural_erosion_impact_on_indigenous_engagement)*Indigenous_Community_Engagement/MAX_COMMUNITY_ENGAGEMENT) {UNIFLOW}
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".access_to_market = BASE_ACCESS_TO_MARKET
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".financial_support_handicraft = BASE_FINANCIAL_SUPPORT
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".community_support_handicraft = (Indigenous_Community_Engagement+2*Women_Engagement+2*Indigenous_Knowledge)*COMMUNITY_SUPPORT_FACTOR
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".empowerment_impact_on_creation = FINANCING_TRAINING_IMPACT
+: f "INDIGENOUS_WELL-BEING".handicraft_creation = (availability_of_raw_material_for_handicraft * access_to_market * financial_support_handicraft * community_support_handicraft) * (1 - Handicraft_Activities / MAX_HANDICRAFT_ACTIVITIES) * (1 + MARKET_ACCESS_FACTOR) + empowerment_impact_on_creation + AWARENESS_CAMPAIGNS+EDUCATION_PROGRAMMES+(INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation/2) {UNIFLOW}
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".MARKET_ACCESS_IMPACT_ON_COMPETITION = IF TIME > 2030 THEN Increase_market_accessibility ELSE 0
+: f "INDIGENOUS_WELL-BEING".handicraft_closure = Handicraft_Activities * COMPETITION_PRESSURE_HANDICRAFT * (1 - MARKET_ACCESS_IMPACT_ON_COMPETITION) {UNIFLOW}
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".handicraft_activities_contribution_to_knowledge = Handicraft_Activities * (Handicraft_Activities / MAX_HANDICRAFT_ACTIVITIES)
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".engagement_contribution_to_knowledge = (Indigenous_Community_Engagement+Women_Engagement)*ENGAGEMENT_KNOWLEDGE_FACTOR+4*COOPERATIVES_PROMOTION
+    UNITS: Percentage/Year
+: f "INDIGENOUS_WELL-BEING".knowledge_gain_rate =   (4*handicraft_activities_contribution_to_knowledge + engagement_contribution_to_knowledge) * (1 - Indigenous_Knowledge/MAX_INDIGENOUS_KNOWLEDGE) {UNIFLOW}
+    UNITS: Percentage/Year
+: f "INDIGENOUS_WELL-BEING".knowledge_loss_rate = ((cultural_erosion_contribution)*Indigenous_Knowledge/MAX_INDIGENOUS_KNOWLEDGE) {UNIFLOW}
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING"."handicraft_contribution_to_well-being" = (Handicraft_Activities * "HANDICRAFT_WELL-BEING_FACTOR")
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING"."environmental_quality_contribution_to_well-being" = (1-ENVIRONMENTAL_DEGRADATION.Environmental_Degradation/ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION)*"ENVIRONMENTAL_WELL-BEING_FACTOR"*(ENVIRONMENTAL_DEGRADATION.Soil_Quality/ENVIRONMENTAL_DEGRADATION.MAX_SOIL_QUALITY)
+    UNITS: Percentage/Year
+    DOCUMENT: Contribution of environmental quality (low degradation, high soil quality) to indigenous well-being.
+: c "INDIGENOUS_WELL-BEING"."indigenous_knowledge_contribution_to_well-being" = Indigenous_Knowledge*"KNOWLEDGE_WELL-BEING_FACTOR"
+    UNITS: Percentage/Year
+: f "INDIGENOUS_WELL-BEING"."well-being_increase" = ("handicraft_contribution_to_well-being"+"environmental_quality_contribution_to_well-being"+"indigenous_knowledge_contribution_to_well-being"+0,9*INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation)*(1-"Indigenous_Community_Well-Being"/"MAX_WELL-BEING") {UNIFLOW}
+    UNITS: Percentage/Year
+    DOCUMENT: Factors contributing to the increase in indigenous well-being. Slows down as max well-being is approached.
+: c "INDIGENOUS_WELL-BEING".resources_scarcity_impact = ( (ENVIRONMENTAL_DEGRADATION.Environmental_Degradation / ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION) + (1 - ENVIRONMENTAL_DEGRADATION.Soil_Quality / ENVIRONMENTAL_DEGRADATION.MAX_SOIL_QUALITY) ) / 2 * RESOURCE_SCARCITY_IMPACT_FACTOR
+    UNITS: 1/Year
+: c "INDIGENOUS_WELL-BEING".social_disruption_impact = ( (cultural_erosion_contribution / CULTURAL_EROSION_BASE_RATE) * SOCIAL_DISRUPTION_IMPACT_AMPLIFIER * BASE_SOCIAL_DISRUPTION_IMPACT_RATE)/(Women_Engagement/100)
+    UNITS: 1/Year
+: f "INDIGENOUS_WELL-BEING"."well-being_decrease" = (resources_scarcity_impact+social_disruption_impact)*"Indigenous_Community_Well-Being" {UNIFLOW}
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".women_access_to_resources = BASE_WOMEN_ACCESS_TO_RESOURCES * (1 + Handicraft_Activities * HANDICRAFT_IMPACT_ON_WOMEN_RESOURCES) + FINANCING_TRAINING_IMPACT
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".institutional_capacity_for_women_initiatives = INSTITUTIONAL_CAPACITY.Institutional_Capacity/INSTITUTIONAL_CAPACITY.MAX_INSTITUTIONAL_CAPACITY
+    UNITS: Dimensionless
+: c "INDIGENOUS_WELL-BEING".women_engagement_initiatives_impact = (BASE_WOMEN_INITATIVES*institutional_capacity_for_women_initiatives)+Women_engagement_initiatives
+    UNITS: Dimensionless/Year
+: f "INDIGENOUS_WELL-BEING".women_engagement_increase_rate = (women_access_to_resources+women_engagement_initiatives_impact)*(1-Women_Engagement/MAX_WOMEN_ENGAGEMENT) {UNIFLOW}
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".cultural_barriers_to_engagement = BASE_CULTURAL_BARRIERS*(1-Indigenous_Knowledge/MAX_INDIGENOUS_KNOWLEDGE)
+    UNITS: Percentage/Year
+    DOCUMENT: Traditional knowledge may reduce barriers
+: c "INDIGENOUS_WELL-BEING".cultural_erosion_impact_on_women_engagement = cultural_erosion_contribution*CULTURAL_EROSION_WOMEN_FACTOR
+    UNITS: Percentage/Year
+: f "INDIGENOUS_WELL-BEING".women_engagement_reduction_rate = ((cultural_barriers_to_engagement+cultural_erosion_impact_on_women_engagement)*Women_Engagement/MAX_WOMEN_ENGAGEMENT) {UNIFLOW}
+    UNITS: Percentage/Year
+: c "INDIGENOUS_WELL-BEING".Social_disruption_barrier = social_disruption_impact*100
+: c INSTITUTIONAL_CAPACITY.information_sharing_effectiveness = IF Institutional_Capacity < 40 THEN 10 ELSE IF Institutional_Capacity < 80 THEN 70 ELSE 100
+    UNITS: Percentage
+: c INSTITUTIONAL_CAPACITY.information_sharing_with_the_community = BASE_INFORMATION_SHARING   + (Environmental_Monitoring_Effectiveness * information_sharing_effectiveness)   + ("INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement * 0,03)   + 2 * "INDIGENOUS_WELL-BEING".EDUCATION_PROGRAMMES   + 3 * "INDIGENOUS_WELL-BEING".AWARENESS_CAMPAIGNS
+    UNITS: Percentage
+: f INSTITUTIONAL_CAPACITY.increasing_awareness =   EDUCATION_CAMPAIGNS_EFFECTIVENESS * information_sharing_with_the_community   * (1 - Deforestation_Awareness / MAX_DEFORESTATION_AWARENESS)   + 0,2 * "INDIGENOUS_WELL-BEING".EDUCATION_PROGRAMMES   + 0,3 * "INDIGENOUS_WELL-BEING".AWARENESS_CAMPAIGNS {UNIFLOW}
+    UNITS: Percentage/Year
+: f INSTITUTIONAL_CAPACITY.decreasing_awareness = Deforestation_Awareness*AWARENESS_DECAY_RATE {UNIFLOW}
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.TRAINING_INVESTMENTS = Policy_coordination_and_cooperation
+    UNITS: Percentage/Year
+    DOCUMENT: Level of investments in institutional personal training
+: c INSTITUTIONAL_CAPACITY.training_investments_effective = TRAINING_INVESTMENTS+1*"INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT
+: c INSTITUTIONAL_CAPACITY.INSTITUTIONS_LEVEL_OF_COOPERATION = BASE_INSTITUTIONS_LEVEL_OF_COOPERATION+1*"INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION+Policy_coordination_and_cooperation
+: c INSTITUTIONAL_CAPACITY.INVESTMENTS_IN_INSTITUTIONAL_COOPERATION = Policy_coordination_and_cooperation
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.people_trust_in_institutions_impact_on_capacity = People_Trust_in_Institutions*TRUST_CAPACITY_FACTOR+TRACEABILITY_SYSTEMS
+    UNITS: Percentage/Year
+: f INSTITUTIONAL_CAPACITY.increasing_capacity =   ( training_investments_effective * TRAINING_INVESTMENT_EFFECTIVENESS * (0,5 + 0,3*MIN(1; "INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT                   + "INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION))   + INSTITUTIONS_LEVEL_OF_COOPERATION * INVESTMENTS_IN_INSTITUTIONAL_COOPERATION * (0,5 + 0,3*MIN(1; "INDIGENOUS_WELL-BEING".FINANCING_TRAINING_IMPACT                   + "INDIGENOUS_WELL-BEING".COOPERATIVES_PROMOTION))   + people_trust_in_institutions_impact_on_capacity * (0,5 + 0,2*public_awareness) )   * (1 - Institutional_Capacity / MAX_INSTITUTIONAL_CAPACITY)   + 0,2 * LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES   + 0,3 * LANDUSE_CONFLICTS.Secure_indigenous_land_right {UNIFLOW}
+    UNITS: Percentage/Year
+: f INSTITUTIONAL_CAPACITY.decreasing_capacity = (INSTITUTIONAL_INSTABILITY * CORRUPTION_LEVEL*2) * Institutional_Capacity / MAX_INSTITUTIONAL_CAPACITY {UNIFLOW}
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.ENVIRONMENTAL_MONITORING_FUNDING = Enhance_environmental_monitoring
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.institutional_capacity_impact_on_monitoring = Institutional_Capacity/MAX_INSTITUTIONAL_CAPACITY
+    UNITS: Dimensionless
+: c INSTITUTIONAL_CAPACITY.EFFECTIVENESS_BUILD_RATE = Enhance_environmental_monitoring
+    UNITS: Dimensionless
+: f INSTITUTIONAL_CAPACITY.monitoring_increase = (ENVIRONMENTAL_MONITORING_FUNDING/ REQUIRED_MONITORING_FUNDING) * institutional_capacity_impact_on_monitoring * EFFECTIVENESS_BUILD_RATE * 50*(1 - Environmental_Monitoring_Effectiveness / MAX_MONITORING_EFFECTIVENESS) {UNIFLOW}
+    UNITS: Percentage/Year
+: f INSTITUTIONAL_CAPACITY.monitoring_decrease = Environmental_Monitoring_Effectiveness * BASE_DECAY_RATE_MONITORING *(1+ (1 - Institutional_Capacity / MAX_INSTITUTIONAL_CAPACITY)*0,5) {UNIFLOW}
+    UNITS: Percentage/Year
+: f INSTITUTIONAL_CAPACITY.trust_increase =  MIN(   ("INDIGENOUS_WELL-BEING".Indigenous_Community_Engagement * TRUST_GAIN_PER_PARTICIPATION * 0,01) + ("INDIGENOUS_WELL-BEING"."Indigenous_Community_Well-Being" * TRUST_GAIN_FOR_WELL_BEING * 0,01)+  ("INDIGENOUS_WELL-BEING".Women_Engagement * TRUST_GAIN_PER_PARTICIPATION * 0,01) + (information_sharing_with_the_community * TRUST_GAINED_PER_INFORMATION_UNIT * 0,01) + TRACEABILITY_SYSTEMS + TRUST_BONUS_AWARE * public_awareness ; (MAX_PEOPLE_TRUST - People_Trust_in_Institutions)) {UNIFLOW}
+    UNITS: Percentage/Year
+: f INSTITUTIONAL_CAPACITY.trust_decrease = MIN(  CORRUPTION_LEVEL * (1 - 0,25*public_awareness) * TRUST_REDUCTION_PER_CORRUPTION * 5 * People_Trust_in_Institutions / MAX_PEOPLE_TRUST ;   People_Trust_in_Institutions ) {UNIFLOW}
+    UNITS: Percentage/Year
+: c INSTITUTIONAL_CAPACITY.Awareness_barrier = 100-Deforestation_Awareness
+: c INSTITUTIONAL_CAPACITY.Monitoring_barrier = 100-Environmental_Monitoring_Effectiveness
+: c INSTITUTIONAL_CAPACITY.Trust_barrier = 100-People_Trust_in_Institutions
+: c LANDUSE_CONFLICTS.Policy_enforcement_barrier = 100-(forest_protection_policy_effectiveness*100)
+
+{ TIME SPECS }
+STARTTIME=2025
+STOPTIME=2045
+DT=0,25
+INTEGRATION=EULER
+RUNMODE=NORMAL
+PAUSEINTERVAL=0
