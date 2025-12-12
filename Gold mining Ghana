@@ -1,0 +1,612 @@
+{ VERSION 4.0 }
+
+{ The model has 403 (403) variables (array expansion in parens).
+  In root model and 8 additional modules with 0 sectors.
+  Stocks: 27 (27) Flows: 41 (41) Converters: 335 (335)
+  Constants: 105 (105) Equations: 271 (271) Graphicals: 25 (25)  }
+
+{ INITIALIZATION EQUATIONS }
+: s "ASM/LSM".Artisanal_Small_mining = 5000
+: s "ASM/LSM".Illegal_ASM = 0
+: s "ASM/LSM".Large_Scale_Mining = 2
+: s "ASM/LSM".Legalized_miners = 0
+: s "ASM/LSM".Miners_training = 0,1
+: s Biodiversity.Aquatic_species = 100
+: s Biodiversity.Avifauna = 100
+: s Biodiversity.Deforestation_awareness = 0,1
+: s Biodiversity.Forested_areas = 600000
+: s Biodiversity.Plant_species = 100
+: s Biodiversity.Terrestrial_species = 100
+: s Fluvial_ecosystem.Pra_riverbank_erosion = 100
+    UNITS: sq m
+: s Fluvial_ecosystem.Pra_water_quality = 0,5
+: s Fluvial_ecosystem.Riparian_vegetation = 200000000
+: s Institutions_and_governance.Institutional_capacity = 0,3
+: s Institutions_and_governance.Local_community_engaement = 0,1
+: s Landscape_degradation.Landscape_degradation = 0,6
+    UNITS: ha
+: s Landscape_degradation.Landscape_degradation_awareness = 0,001
+: s Local_community.Cocoa_production_areas = 100
+: s Local_community.Local_community_capacity = 0,2
+: s Local_community.Local_community_health = 0,8
+: s Local_community."Local_community_well-being" = 0,4
+: s Local_community.Palm_production_areas = 100
+: s Sustainable_mining_activities.Attitude = 0,1
+: s Sustainable_mining_activities.Perceived_Behavioural_Control = 0,1
+: s Sustainable_mining_activities.Subjective_norms = 0,1
+: s Sustainable_mining_activities.Sustainable_mining_intention = 0,1
+    UNITS: Dimensionless
+: c Biodiversity."Deforestation_(ha)" = -1*(Forested_areas - (DELAY(Forested_areas;  1)))
+: c Local_community.Cocoa_expansion_rate = Cocoa_production_areas-DELAY(Cocoa_production_areas;  1)
+: c Local_community.Palm_oil_expansion_rate = Palm_production_areas-DELAY(Palm_production_areas;  1)
+: c Awareness_raising_initiatives = 0
+: c Capacity_building_costs = 5
+: c Climate_adaptation_cost = 6,33
+: c Cocoa_demand = 80000
+: c Community_capacity_building_initiatives = 0
+: c Community_land_reclamation_cost = 5
+: c Consecutive_dry_days = 45
+: c Coordination_cost = 3,67
+: c Cost_inclusiveness = 4,33
+: c Education_costs = 3
+: c Enforcement_costs = 7,33
+: c Engagement_cost = 2
+: c "Facilitate_community-led_initiatives" = 0
+: c Miners_training_for_sustainability = 0
+: c Financial_incentive_for_training = Miners_training_for_sustainability
+: c Forest_protection_cost = 5
+: c Gold_demand_Ghana = 30000
+: c Governance_reform_costs = 3,67
+: c Incentivise_landscape_recovery = 0
+: c Livelihoods_costs = 6,33
+: c Loan_cost = 8
+: c Loan_for_transition = 0
+: c Miners_training_cost = 5,67
+: c Monitoring_costs = 5
+: c Institutions_and_governance.Environmental_monitoring_interventions = 0
+: c Institutions_and_governance.Strengthen_enforcement = 0
+: c Institutions_and_governance.Professionalise_institutions = 0,1
+: c Local_community.Promote_alternative_livelihoods = 0
+: c Local_community.Enhance_inclusiveness = 0
+: c Institutions_and_governance.Capacity_building = 0
+: c Institutions_and_governance.Engagememt_initiatives = 0
+: c Recovery_cost = 5,67
+: c Institutions_and_governance.Institutional_coordination = 0
+: c Biodiversity.Forest_protection_policy = 0
+: c Institutions_and_governance.Climate_finance = 0
+: c Waste_management = 0
+: c Waste_management_cost = 7
+: c Reforestation_cost = 4,33
+: c Biodiversity.Reforestation_policy = 0
+: c Overall_strategy_cost = (Institutions_and_governance.Environmental_monitoring_interventions*Monitoring_costs)+(Institutions_and_governance.Strengthen_enforcement*Enforcement_costs)+(Institutions_and_governance.Professionalise_institutions*Governance_reform_costs)+(Education_costs*Awareness_raising_initiatives)+(Local_community.Promote_alternative_livelihoods*Livelihoods_costs)+("Facilitate_community-led_initiatives"*Community_land_reclamation_cost)+(Cost_inclusiveness*Local_community.Enhance_inclusiveness)+(Institutions_and_governance.Capacity_building*Capacity_building_costs)+(Institutions_and_governance.Engagememt_initiatives*Engagement_cost)+(.Incentivise_landscape_recovery*Recovery_cost)+(Coordination_cost*Institutions_and_governance.Institutional_coordination)+(Biodiversity.Forest_protection_policy*Forest_protection_cost)+(Institutions_and_governance.Climate_finance*Climate_adaptation_cost)+(Miners_training_cost*Miners_training_for_sustainability)++(Waste_management*Waste_management_cost)+(Loan_for_transition*Loan_cost)+(Reforestation_cost*Biodiversity.Reforestation_policy)
+: c Palm_fruit_demand = 450000
+: c Training_efforts = Miners_training_for_sustainability
+: c "ASM/LSM".Max_ASM_potential_expansion = 0,2
+: c "ASM/LSM".ASM_demand_rate = 0,45
+: c "ASM/LSM".Scale_factor = 0,5
+: c "ASM/LSM".Local_gold_demand = Scale_factor*.Gold_demand_Ghana
+: c "ASM/LSM"."Yearly_gold_production_ASM/mine" = 0,00075
+: c "ASM/LSM".Gold_production_ASM = "Yearly_gold_production_ASM/mine"*Artisanal_Small_mining
+: c "ASM/LSM"."Yearly_gold_production_LSM/mine" = 12
+: c "ASM/LSM".Gold_production_LSM = "Yearly_gold_production_LSM/mine"*Large_Scale_Mining
+: c "ASM/LSM".Overall_yearly_gold_production = Gold_production_ASM+Gold_production_LSM
+: c "ASM/LSM".Unsatisfied_demand_ratio = MAX(0;  Local_gold_demand-Overall_yearly_gold_production)
+: c "ASM/LSM".ASM_demand = ASM_demand_rate*Unsatisfied_demand_ratio
+: c "ASM/LSM".Base_ASM_profitability = 15000000
+: c "ASM/LSM".Expected_ASM_profitability = ASM_demand*Base_ASM_profitability
+: c "ASM/LSM".Profitability_attractiveness = Expected_ASM_profitability
+: c Local_community.Base_cocoa_yield = 450
+: c Local_community.Climate_impact_on_soil_productivity = IF .Consecutive_dry_days < 10 THEN 0,9 ELSE IF .Consecutive_dry_days < 25 THEN 0,6 ELSE IF .Consecutive_dry_days<40 THEN 0,3 ELSE 0,1
+: c Local_community."Cocoa_yield/ha" = Base_cocoa_yield*Climate_impact_on_soil_productivity
+: c Local_community.Cocoa_production = "Cocoa_yield/ha"*Cocoa_production_areas
+: c Local_community."Cocoa_income/tons" = 4,81
+: c Local_community.Cocoa_production_income = Cocoa_production*"Cocoa_income/tons"
+: c Local_community.Base_palm_yield = 8000
+: c Local_community."Palm_fruit_yield/ha" = Base_palm_yield*Climate_impact_on_soil_productivity
+: c Local_community.Palm_production = "Palm_fruit_yield/ha"*Palm_production_areas
+: c Local_community."Palm_oil_income/ha" = 985
+: c Local_community.Palm_oil_production_income = Palm_production*"Palm_oil_income/ha"
+: c Local_community.Maximum_alternative_sources = 80000000
+: c Local_community.Alternative_economic_resources = Local_community_capacity*(Cocoa_production_income+Palm_oil_production_income)*Promote_alternative_livelihoods/Maximum_alternative_sources
+: f "ASM/LSM".ASM_increasing_rate = (Max_ASM_potential_expansion*Profitability_attractiveness*(1-Local_community.Alternative_economic_resources))*Artisanal_Small_mining
+: f "ASM/LSM".Miners_leaving = 0,05*Artisanal_Small_mining
+: c "ASM/LSM".Max_risk_tolerance = 0,9
+: c Institutions_and_governance.Base_monitoring = 0,2
+: c Institutions_and_governance.Environmental_monitoring_capacity = (Base_monitoring*Institutional_capacity)+Environmental_monitoring_interventions
+: c Institutions_and_governance.Law_enforcement_effectiveness = Institutional_capacity*Environmental_monitoring_capacity*Strengthen_enforcement
+: c "ASM/LSM".Miners'_risk_tolerance = Max_risk_tolerance/1-(Local_community.Local_community_capacity*Institutions_and_governance.Law_enforcement_effectiveness)
+: c "ASM/LSM".Base_illegal_ASM_rate = 0,5
+: c "ASM/LSM".Environmental_concerns = Sustainable_mining_activities.Sustainable_mining_intention
+: f "ASM/LSM".Illegal_ASM_increasing_rate =  Artisanal_Small_mining*((Miners'_risk_tolerance*Base_illegal_ASM_rate)*(1-Environmental_concerns))*(1-(Illegal_ASM/Artisanal_Small_mining))
+: c "ASM/LSM".Base_willingness = 0,2
+: c "ASM/LSM".Willingness_to_become_legal = Base_willingness*Sustainable_mining_activities.Sustainable_mining_intention*(1-Miners'_risk_tolerance)
+: c "ASM/LSM".Legalization_rate = 0,08
+: f "ASM/LSM".Legalization_outflow = Illegal_ASM*Willingness_to_become_legal*Legalization_rate
+: c "ASM/LSM".Max_LSM_potential_expansion = 0,1
+: c "ASM/LSM".LSM_gold_demand_rate = 0,45
+: c "ASM/LSM".LSM_demand = MAX (0;  Unsatisfied_demand_ratio*LSM_gold_demand_rate)
+: c "ASM/LSM".Favourable_regulatory_environment = 0,003
+: c "ASM/LSM".LSM_investment_capital_availability = 0,08
+: c "ASM/LSM".Expected_profitability = 0,8
+: c "ASM/LSM".LSM_attractiveness = Favourable_regulatory_environment*LSM_investment_capital_availability*Expected_profitability
+: f "ASM/LSM".LSM_increasing_rate = Max_LSM_potential_expansion*LSM_demand*LSM_attractiveness
+: c "ASM/LSM".Training_effectiveness = Institutions_and_governance.Institutional_capacity+.Financial_incentive_for_training
+: c "ASM/LSM".ASM_willingness_to_be_trained = Sustainable_mining_activities.Sustainable_mining_intention*(1-Miners'_risk_tolerance)
+: c "ASM/LSM".Miners_entering_the_training_program = (Artisanal_Small_mining*ASM_willingness_to_be_trained)+Legalized_miners
+: c "ASM/LSM".Max_ASM_population = Artisanal_Small_mining+Illegal_ASM
+: f "ASM/LSM".Training_increasing_rate = MIN((.Training_efforts*Training_effectiveness*(Miners_entering_the_training_program/Max_ASM_population));  (1-Miners_training))
+: c "ASM/LSM".Gold_production_illegal = "Yearly_gold_production_ASM/mine"*Illegal_ASM
+: c "ASM/LSM".Willingness_barrier = 1-ASM_willingness_to_be_trained
+: c Biodiversity.Fluvial_biodiversity = Aquatic_species
+: c Biodiversity.Deforestation_index = "Deforestation_(ha)"
+: c Biodiversity.Terrestrial_biodiversity = Deforestation_index
+: c Biodiversity.Biodiversity_index = (Fluvial_biodiversity+Terrestrial_biodiversity)/2
+: c Fluvial_ecosystem.Fluvial_ecosystem_degradation = 1-Pra_water_quality
+: c BCS_nexus_challenges.BCS_Nexus_index = Biodiversity.Biodiversity_index*Local_community."Local_community_well-being"*(1-Landscape_degradation.Landscape_degradation)*Fluvial_ecosystem.Fluvial_ecosystem_degradation
+: f Biodiversity.Aquatic_reduction = 0,1*Aquatic_species*Fluvial_ecosystem.Pra_water_quality
+: f Biodiversity.Avifauna_reduction = 0,1*(1-"Deforestation_(ha)")*Avifauna
+: c Institutions_and_governance.Trust_rate = Local_community_engaement
+: c Institutions_and_governance.Public_trust = Institutional_capacity*Trust_rate
+: c Landscape_degradation.Information_dissemination_effectiveness = Institutions_and_governance.Environmental_monitoring_capacity*Institutions_and_governance.Public_trust
+: c Biodiversity.Deforestation_awareness_because_of_monitoring = "Deforestation_(ha)"*Landscape_degradation.Information_dissemination_effectiveness
+: c Landscape_degradation.Sensitivity_to_experience = 0,6
+: c Biodiversity.Population_exposed_to_deforestation = 100
+: c Biodiversity.Deforestation_awareness_experience = Landscape_degradation.Sensitivity_to_experience*Population_exposed_to_deforestation
+: f Biodiversity.Deforestation_awareness_increasing = MIN(Deforestation_awareness_because_of_monitoring++.Awareness_raising_initiatives+(Deforestation_awareness_experience/100);  (1-Deforestation_awareness))
+: c Biodiversity.Deforestation_awareness_decay_fraction = 0,2
+: f Biodiversity.Deforestation_awareness_decay = Deforestation_awareness*Deforestation_awareness_decay_fraction
+: c Biodiversity.Reforestation_projects = 15*Reforestation_policy
+: c Biodiversity.Reforested_areas_per_project = 50
+: c Biodiversity.Base_reforestation_effectiveness = 0,5
+: c Biodiversity.Reforestation_effectiveness = Base_reforestation_effectiveness*Institutions_and_governance.Institutional_capacity
+: c Institutions_and_governance.Climate_adaptation_capability = Institutional_capacity*Climate_finance
+: f Biodiversity.Reforestation_rate = (Reforestation_projects*Reforested_areas_per_project)*Reforestation_effectiveness+Institutions_and_governance.Climate_adaptation_capability
+: c Biodiversity.Base_LSM_deforestation = 750
+: c Biodiversity.Sustainability_concerns_reduction_LSM = Sustainable_mining_activities.Sustainable_mining_intention
+    UNITS: Dimensionless
+: c Biodiversity.LSM_deforestation = (Base_LSM_deforestation*"ASM/LSM".Gold_production_LSM)*Sustainability_concerns_reduction_LSM
+: c Biodiversity.Base_illegal_deforestation = 4000
+: c Biodiversity."Sustainability_concern_reduction_(illegal)" = Sustainable_mining_activities.Sustainable_mining_intention
+: c Biodiversity.ASM_deforestation = (Base_illegal_deforestation*"ASM/LSM".Gold_production_ASM)*"Sustainability_concern_reduction_(illegal)"
+: c Biodiversity.Potential_deforestation_rate_due_to_mining = (LSM_deforestation+ASM_deforestation)
+: c Local_community.Agricultural_expansion_per_year = Palm_oil_expansion_rate+Cocoa_expansion_rate
+: c Biodiversity.Agricultural_deforeestation_coefficient = 0,7
+: c Biodiversity.Deforestation_due_to_agriculture = Local_community.Agricultural_expansion_per_year*Agricultural_deforeestation_coefficient
+: c Biodiversity."Base_protected_forest_(%)" = 10
+: c Biodiversity.Base_law_enforcement = 0,15
+: c Biodiversity."Protected_forest_(ha)" = IF Forest_protection_policy>0 THEN (Forest_protection_policy*"Base_protected_forest_(%)"*(Institutions_and_governance.Law_enforcement_effectiveness+Base_law_enforcement)*Forested_areas) ELSE ("Base_protected_forest_(%)"*Institutions_and_governance.Law_enforcement_effectiveness)*Forested_areas
+: f Biodiversity.Deforestation_rate = (Potential_deforestation_rate_due_to_mining+Deforestation_due_to_agriculture)-"Protected_forest_(ha)"
+: f Biodiversity.Plant_species_reduction = 0,08*Plant_species*(1-"Deforestation_(ha)")
+: f Biodiversity.Terrestrial_reduction = 0,07*(1-"Deforestation_(ha)")*Terrestrial_species
+: c Biodiversity.Lack_of_awareness = 1-(Deforestation_awareness*Landscape_degradation.Landscape_degradation_awareness)
+: c Fluvial_ecosystem.Water_volume_per_tons_of_gold = 2630
+: c Fluvial_ecosystem.ASM_increasing_coefficient = 1,5
+: c Fluvial_ecosystem.Water_volume_ASM = "ASM/LSM".Gold_production_ASM*Water_volume_per_tons_of_gold*ASM_increasing_coefficient
+: c Fluvial_ecosystem.LSM_reduction_coefficient = 0,8
+: c Fluvial_ecosystem.Water_volume_LSM = "ASM/LSM".Gold_production_LSM*Water_volume_per_tons_of_gold*LSM_reduction_coefficient
+: c Fluvial_ecosystem.Water_recycling_rate = Sustainable_mining_activities.Sustainable_mining_intention
+    UNITS: Dimensionless
+: c Fluvial_ecosystem.Water_exploitation_for_mining_activities = (Water_volume_ASM+Water_volume_LSM)-((Water_volume_LSM+Water_volume_ASM)*Water_recycling_rate)
+: c Fluvial_ecosystem."Self-purification_reduction_factor" = Water_exploitation_for_mining_activities
+: c Fluvial_ecosystem.Climate_change_impacts_coefficient = IF .Consecutive_dry_days<=5 THEN 0,9 ELSE IF .Consecutive_dry_days<10 THEN 0,7 ELSE IF .Consecutive_dry_days < 30 THEN 0,5 ELSE IF .Consecutive_dry_days < 45 THEN 0,3ELSE 0,1
+: c Fluvial_ecosystem."Base_self-purification_rate" = 0,8*("Self-purification_reduction_factor"*Climate_change_impacts_coefficient)
+: f Fluvial_ecosystem.Increasing_quality_rate = "Base_self-purification_rate"*(1-Pra_water_quality)
+: c Fluvial_ecosystem.Pollutant_concentration_ASM = 2000
+: c Fluvial_ecosystem.Pollutant_increase_coefficient_Illegal = 1,2
+: c Fluvial_ecosystem."Pollutants_concentration_reduction_coeffcient(illegal)" = (Sustainable_mining_activities.Sustainable_mining_intention*+.Loan_for_transition+"ASM/LSM".Miners_training)
+: c Fluvial_ecosystem.Pollutant_concentration_illegal = ("ASM/LSM".Gold_production_illegal*Pollutant_concentration_ASM)*Pollutant_increase_coefficient_Illegal*(1-"Pollutants_concentration_reduction_coeffcient(illegal)")
+: c Fluvial_ecosystem."Pollutants_concentration_reduction_coeffcient(ASM)" = Sustainable_mining_activities.Sustainable_mining_intention+"ASM/LSM".Miners_training+.Loan_for_transition
+: c Fluvial_ecosystem."Pollutants_concentration_(ASM)" = IF "Pollutants_concentration_reduction_coeffcient(ASM)">0 THEN (Pollutant_concentration_ASM*"ASM/LSM".Gold_production_ASM)*(1-"Pollutants_concentration_reduction_coeffcient(ASM)") ELSE Pollutant_concentration_ASM*"ASM/LSM".Gold_production_ASM
+: c Fluvial_ecosystem.Pollutants_concentration_LSM_1 = 727
+: c Fluvial_ecosystem."Pollutants_concentration_reduction_coeffcient(LSM)" = IF Sustainable_mining_activities.Sustainable_mining_intention>=0,6 THEN 0,8 ELSE 0,5
+: c Fluvial_ecosystem.Pollutants_concentration_LSM = (Pollutants_concentration_LSM_1*"ASM/LSM".Gold_production_LSM)*"Pollutants_concentration_reduction_coeffcient(LSM)"
+: c Fluvial_ecosystem.Pollutant_concentration = Pollutant_concentration_illegal+"Pollutants_concentration_(ASM)"+Pollutants_concentration_LSM
+: c Fluvial_ecosystem.Pollution_impact_rate = Pollutant_concentration/41000
+: f Fluvial_ecosystem.Decreasing_water_quality_rate = Pollution_impact_rate*Pra_water_quality
+: c Fluvial_ecosystem."Excavation_along_the_riverbank/tons_of_gold" = 373000
+: c Fluvial_ecosystem.Excavation_along_riverbank_increasing_coeff_ASM = 0,1
+: c Fluvial_ecosystem.Excavation_reduction_coefficient_ASM = Sustainable_mining_activities.Sustainable_mining_intention
+    UNITS: Dimensionless
+: c Fluvial_ecosystem.Excacation_along_riverbank_ASM = ("Excavation_along_the_riverbank/tons_of_gold"*"ASM/LSM".Gold_production_ASM)*Excavation_along_riverbank_increasing_coeff_ASM*Excavation_reduction_coefficient_ASM
+: c Fluvial_ecosystem.Excavation_reduction_coefficient_LSM = Sustainable_mining_activities.Sustainable_mining_intention
+    UNITS: Dimensionless
+: c Fluvial_ecosystem.Excavation_along_the_riverbank_LSM = ("ASM/LSM".Gold_production_LSM*"Excavation_along_the_riverbank/tons_of_gold")*Excavation_reduction_coefficient_ASM*Excavation_reduction_coefficient_LSM
+: c Fluvial_ecosystem.Excavation_along_the_riverbank = Excacation_along_riverbank_ASM+Excavation_along_the_riverbank_LSM
+: c Fluvial_ecosystem.Riverbank_erosion_rate = 0,2
+: f Fluvial_ecosystem.Increasing_erosion_rate = Excavation_along_the_riverbank*Riverbank_erosion_rate
+    UNITS: sq m/Years
+: c Fluvial_ecosystem.Vegetation_loss_due_to_excavation_coefficient = 0,1
+: c Fluvial_ecosystem.Excavation_impacts_on_riparian_vegetation = Vegetation_loss_due_to_excavation_coefficient*Excavation_along_the_riverbank
+: f Fluvial_ecosystem.Vegetation_reduction = MIN(Riparian_vegetation;  Excavation_impacts_on_riparian_vegetation)
+: c Fluvial_ecosystem.Max_erosion = 400000000
+: c Fluvial_ecosystem.Riverback_erosion_index = Pra_riverbank_erosion/Max_erosion
+: c Fluvial_ecosystem.Water_quality_index = Pra_water_quality
+: c Institutions_and_governance.Training_investements = Strengthen_enforcement
+: c Institutions_and_governance.Resources_allocation = Strengthen_enforcement
+: c Institutions_and_governance.Environmental_awareness = Biodiversity.Deforestation_awareness+Landscape_degradation.Landscape_degradation_awareness
+: c Institutions_and_governance.Awareness_impact_coefficient = 0,1
+: c Institutions_and_governance.Institutional_awareness = Environmental_awareness*Awareness_impact_coefficient
+: c Institutions_and_governance.Max_increasing_rate = 0,55
+: f Institutions_and_governance.Increasing_capacity = ((Training_investements+Professionalise_institutions+Resources_allocation+Public_trust+Institutional_awareness+Capacity_building)*Max_increasing_rate*(1-Institutional_capacity)/5)
+: c Institutions_and_governance.Fighting_instability = Institutional_coordination
+: c Institutions_and_governance.Political_instability = 1-Fighting_instability
+: c Institutions_and_governance.Fighting_corruption = Institutional_coordination
+: c Institutions_and_governance.Corruption_rate = 1-Fighting_corruption
+: c Institutions_and_governance.Corruption_loss = Corruption_rate*Institutional_capacity
+: c Institutions_and_governance.Base_fragmentation = 0,8
+: c Institutions_and_governance.Institutional_fragmentation = Base_fragmentation*(1-Institutional_coordination)
+: f Institutions_and_governance.Decreasing_capacity = MIN(Institutional_capacity; Political_instability+Corruption_loss+Institutional_fragmentation)
+: c Institutions_and_governance.Awareness_impact = 0,3
+: c Institutions_and_governance."Well-being_impact" = 0,3
+: c Institutions_and_governance.Engagement_initiatives_effectiveness = Institutional_capacity
+: f Institutions_and_governance.Increasing_engagement = (Environmental_awareness*Awareness_impact)+(Local_community."Local_community_well-being"*"Well-being_impact")+(5*Engagememt_initiatives*Engagement_initiatives_effectiveness)
+: c Institutions_and_governance.Decreasing_rate = Institutional_capacity
+: f Institutions_and_governance.Decreasing_engagement = Decreasing_rate*Local_community_engaement
+: c Institutions_and_governance.Institutional_capacity_barrier = 1-Institutional_capacity
+: c Institutions_and_governance.Law_enforcement_barrier = 1-Law_enforcement_effectiveness
+: c Institutions_and_governance.Monitoring_barrier = 1-Environmental_monitoring_capacity
+: c Institutions_and_governance.Trust_barrier = 1-Public_trust
+: c Landscape_degradation.Monitoring_awareness_normalization = 1000000000
+: c Landscape_degradation.Awareness_from_monitoring = (Landscape_degradation*Information_dissemination_effectiveness)/Monitoring_awareness_normalization
+: c Landscape_degradation.Population_exposed_to_degradation = 100
+: c Landscape_degradation.Awareness_normalization = 50000*1000000000
+: c Landscape_degradation.Awareness_from_personal_experiences = ((Landscape_degradation*Sensitivity_to_experience)*Population_exposed_to_degradation)/Awareness_normalization
+: c Landscape_degradation.Awareness_raising_effectiveness = Institutions_and_governance.Institutional_capacity
+: f Landscape_degradation.Awareness_increasing_rate = (Awareness_from_monitoring+Awareness_from_personal_experiences)+(.Awareness_raising_initiatives*Awareness_raising_effectiveness)
+: c Landscape_degradation.Decay_fraction = 0,1
+: f Landscape_degradation.Awareness_decay = Landscape_degradation_awareness*Decay_fraction
+: c Landscape_degradation."Excavation_per_tons_of_gold_(mq)" = 364000
+: c Landscape_degradation.ASM_impact_multiplier = 1
+: c Landscape_degradation.Excavation_reduction_coefficient_ASM = Sustainable_mining_activities.Sustainable_mining_intention
+    UNITS: Dimensionless
+: c Landscape_degradation.Excavation_degradation_from_ASM = ("ASM/LSM".Gold_production_ASM*"Excavation_per_tons_of_gold_(mq)")*ASM_impact_multiplier*Excavation_reduction_coefficient_ASM
+: c Landscape_degradation.LSM_impact_multiplier = 0,5
+: c Landscape_degradation.Excavation_reduction_coefficient_LSM = Sustainable_mining_activities.Sustainable_mining_intention
+: c Landscape_degradation.Excavation_degradation_from_LSM = ("Excavation_per_tons_of_gold_(mq)"*"ASM/LSM".Gold_production_LSM)*LSM_impact_multiplier*Excavation_reduction_coefficient_LSM
+: c Landscape_degradation.Degradation_from_excavation = Excavation_degradation_from_ASM+Excavation_degradation_from_LSM
+: c Landscape_degradation."Surface_of_waste_disposal/tons_of_gold" = 5440
+: c Landscape_degradation.LSM_waste_multiplier = 0,5
+: c Landscape_degradation.Waste_reduction_coefficient_LSM = Sustainable_mining_activities.Sustainable_mining_intention^0,8
+: c Landscape_degradation.Degraded_surface_waste_disposal_LSM = ("ASM/LSM".Gold_production_LSM*"Surface_of_waste_disposal/tons_of_gold")*LSM_waste_multiplier/Waste_reduction_coefficient_LSM
+: c Landscape_degradation.ASM_waste_multiplier = 1,5
+: c Landscape_degradation.Waste_reduction_coefficient_ASM = Sustainable_mining_activities.Sustainable_mining_intention^0,3
+: c Landscape_degradation.Degraded_surface_waste_disposal_ASM = ("ASM/LSM".Gold_production_ASM*"Surface_of_waste_disposal/tons_of_gold")*ASM_waste_multiplier*Waste_reduction_coefficient_ASM
+: c Landscape_degradation.Degradation_from_waste_disposal = (Degraded_surface_waste_disposal_LSM+Degraded_surface_waste_disposal_ASM)*(1-.Waste_management     )
+: c Landscape_degradation.Degradation_due_to_mining_activities = (Degradation_from_excavation)+(Degradation_from_waste_disposal)
+    UNITS: Hectares/Years
+: c Landscape_degradation.Max_landscape_degradation = 250000
+: c Landscape_degradation.Degradation_index = IF .Loan_for_transition > 0 THEN MIN (1;  .Loan_for_transition*(Degradation_due_to_mining_activities/Max_landscape_degradation)) ELSE MIN (1;  (Degradation_due_to_mining_activities/Max_landscape_degradation))
+: f Landscape_degradation.Degradation_rate = Degradation_index*(1-Landscape_degradation)
+    UNITS: ha/Years
+: c Landscape_degradation.Landscape_recovery_regulation_requirement = 1
+: c Landscape_degradation."Comply_due_to_law_enforcement_(ASM)" = Institutions_and_governance.Law_enforcement_effectiveness
+: c Landscape_degradation."Comply_due_to_sustainable_intention_(ASM)" = Sustainable_mining_activities.Sustainable_mining_intention
+: c Landscape_degradation.ASM_comply_multiplier = ("Comply_due_to_law_enforcement_(ASM)"+"Comply_due_to_sustainable_intention_(ASM)")/2
+: c Landscape_degradation."Annual_recovery_rate_(ASM)" = Landscape_recovery_regulation_requirement*ASM_comply_multiplier
+: c Landscape_degradation."Comply_due_to_law_enforcement_(illegal)" = IF Institutions_and_governance.Law_enforcement_effectiveness <0,2 THEN 0,0005 ELSE IF Institutions_and_governance.Law_enforcement_effectiveness<0,6 THEN 0,2 ELSE IF Institutions_and_governance.Law_enforcement_effectiveness<0,8 THEN 0,4 ELSE 0,6
+: c Landscape_degradation."Comply_due_to_sustainable_intention_(illegal)" = IF Sustainable_mining_activities.Sustainable_mining_intention<0,2 THEN 0,05 ELSE IF Sustainable_mining_activities.Sustainable_mining_intention<0,5 THEN 0,2 ELSE IF Sustainable_mining_activities.Sustainable_mining_intention<0,8 THEN 0,5 ELSE 0,7
+: c Landscape_degradation.Illegal_normal_comply_rate = "Comply_due_to_law_enforcement_(illegal)"*"Comply_due_to_sustainable_intention_(illegal)"
+: c Landscape_degradation."Annual_recovery_rate_(illegal)" = Landscape_recovery_regulation_requirement*Illegal_normal_comply_rate
+: c Landscape_degradation.LSM_normal_comply_rate = 0,7
+: c Landscape_degradation."Annual_recovery_rate_(LSM)" = LSM_normal_comply_rate*Landscape_recovery_regulation_requirement
+: c Landscape_degradation.Miners_annual_recovery = ("Annual_recovery_rate_(ASM)"+"Annual_recovery_rate_(illegal)"+"Annual_recovery_rate_(LSM)")/3
+: c Landscape_degradation.Engagement_and_intentions = IF Institutions_and_governance.Engagememt_initiatives>0 THEN Institutions_and_governance.Engagememt_initiatives*Sustainable_mining_activities.Sustainable_mining_intention*Landscape_degradation_awareness ELSE 0,2*Sustainable_mining_activities.Sustainable_mining_intention*Landscape_degradation_awareness
+: c Landscape_degradation.Community_land_reclamation_effectiveness = Engagement_and_intentions
+: c Landscape_degradation."Community-based_recovery" = Community_land_reclamation_effectiveness*."Facilitate_community-led_initiatives"
+: c Landscape_degradation.Land_recovery_index = IF .Incentivise_landscape_recovery>0 THEN (Miners_annual_recovery+"Community-based_recovery")*.Incentivise_landscape_recovery ELSE (Miners_annual_recovery+"Community-based_recovery")
+: f Landscape_degradation.Recovery_rate = Land_recovery_index
+    UNITS: Hectares/Years
+: c Landscape_degradation.Landscape_quality = 1-Landscape_degradation
+: c Local_community.Capacity_building_effectiveness = Institutions_and_governance.Institutional_capacity
+: f Local_community.Capacity_building_rate = .Community_capacity_building_initiatives*Capacity_building_effectiveness*(1-Local_community_capacity)
+: c Local_community.Water_quality_impact_factor = 0,01
+: f Local_community.Health_decreasing_rate = MIN((1-Local_community_health);    Water_quality_impact_factor*(Fluvial_ecosystem.Pra_water_quality/100))
+: c Local_community.Unsatisfiend_cocoa_demand = .Cocoa_demand-Cocoa_production
+: c Local_community.Demand_for_cocoa_areas = Unsatisfiend_cocoa_demand/"Cocoa_yield/ha"
+: f Local_community.Increasing_cocoa_rate = Demand_for_cocoa_areas
+: c Local_community.Unsatisfied_palm_demand = .Palm_fruit_demand-Palm_production
+: c Local_community.Demand_for_palm_oil_areas = Unsatisfied_palm_demand/"Palm_fruit_yield/ha"
+: f Local_community.Palm_oil_increasing = Demand_for_palm_oil_areas
+: f Local_community.Palm_oil_decreasing = 100
+: c Local_community.ASM_contribution_to_income_rate = 100
+: c Local_community.ASM_employment_rate = 100
+: c Local_community.Local_employment_in_ASM = ASM_employment_rate*"ASM/LSM".Artisanal_Small_mining
+: c Local_community.ASM_contribution_to_income = ASM_contribution_to_income_rate*Local_employment_in_ASM
+: c Local_community.LSM_contribution_to_income_rate = 25
+: c Local_community.LSM_employment_rate = 2
+: c Local_community.Local_employment_in_LSM = LSM_employment_rate*"ASM/LSM".Gold_production_LSM
+: c Local_community.LSM_contribution_to_income = LSM_contribution_to_income_rate*Local_employment_in_LSM
+: c Local_community.Income_due_to_mining = ASM_contribution_to_income+LSM_contribution_to_income
+: c Local_community.Income_impact = Income_due_to_mining
+: f Local_community."Well-being_increasing_rate" = (Alternative_economic_resources+Income_impact+."Facilitate_community-led_initiatives"+Enhance_inclusiveness)*(1-"Local_community_well-being")
+: c Local_community.Environmental_degradation = Fluvial_ecosystem.Pra_water_quality+Landscape_degradation.Landscape_degradation+Biodiversity.Deforestation_index
+: c Local_community.Social_conflict_and_inequality = "ASM/LSM".Illegal_ASM
+: f Local_community."Well-being_decreasing_rate" = (Environmental_degradation*Social_conflict_and_inequality)*"Local_community_well-being"
+: c Local_community.Alternative_sources_barrier = 1-Alternative_economic_resources
+: c Local_community.Community_capacity_barrier = 1-Local_community_capacity
+: c Local_community."Community_well-being_barrier" = 1-"Local_community_well-being"
+: f Sustainable_mining_activities.Increasing_attitude = MIN((Landscape_degradation.Landscape_degradation_awareness*0,8)+(Fluvial_ecosystem.Pra_water_quality*0,6)+(Fluvial_ecosystem.Riverback_erosion_index*0,6);  (1-Attitude))
+: c Sustainable_mining_activities.Attitude_aggregation = (Landscape_degradation.Landscape_degradation_awareness+Fluvial_ecosystem.Riverback_erosion_index+Fluvial_ecosystem.Pra_water_quality)/4
+: c Sustainable_mining_activities.Attitude_erosion = Attitude_aggregation
+: f Sustainable_mining_activities.Attiitude_erosion_rate = Attitude*Attitude_erosion
+: f Sustainable_mining_activities.SN_rate = (Local_community."Local_community_well-being"+Local_community.Local_community_health+Local_community.Alternative_economic_resources)*(1-Subjective_norms)
+: f Sustainable_mining_activities.Intention_rate = MIN(((Attitude*0,312)+(SN_rate*0,18)+(Perceived_Behavioural_Control*0,39));  (1-Sustainable_mining_intention))
+    UNITS: Per Year
+: c Sustainable_mining_activities.Intention_erosion = Intention_rate
+: f Sustainable_mining_activities.Intention_erosion_rate = Intention_erosion*Sustainable_mining_intention
+    UNITS: Per Year
+: c Sustainable_mining_activities.Combined_PBC_drivers = MIN(1;  (0,8*Institutions_and_governance.Law_enforcement_effectiveness+0,5*"ASM/LSM".Miners_training+0,8*.Loan_for_transition))
+: f Sustainable_mining_activities.PBC_rate = Combined_PBC_drivers*(1-Perceived_Behavioural_Control)
+: c Sustainable_mining_activities.PBC_erosion = Combined_PBC_drivers
+: f Sustainable_mining_activities.PBC_erosion_rate = PBC_erosion*Perceived_Behavioural_Control
+: c Sustainable_mining_activities.SN_aggregation = (Local_community.Local_community_health+Local_community."Local_community_well-being"+Local_community.Alternative_economic_resources)/4
+: c Sustainable_mining_activities.SN_erosion = SN_aggregation
+: f Sustainable_mining_activities.SN_erosion_rate = SN_erosion*Subjective_norms
+
+{ RUNTIME EQUATIONS }
+: s "ASM/LSM".Artisanal_Small_mining(t) = Artisanal_Small_mining(t - dt) + (ASM_increasing_rate - Miners_leaving - Illegal_ASM_increasing_rate) * dt {NON-NEGATIVE}
+: s "ASM/LSM".Illegal_ASM(t) = Illegal_ASM(t - dt) + (Illegal_ASM_increasing_rate - Legalization_outflow) * dt {NON-NEGATIVE}
+: s "ASM/LSM".Large_Scale_Mining(t) = Large_Scale_Mining(t - dt) + (LSM_increasing_rate) * dt {NON-NEGATIVE}
+: s "ASM/LSM".Legalized_miners(t) = Legalized_miners(t - dt) + (Legalization_outflow) * dt {NON-NEGATIVE}
+: s "ASM/LSM".Miners_training(t) = Miners_training(t - dt) + (Training_increasing_rate) * dt {NON-NEGATIVE}
+: s Biodiversity.Aquatic_species(t) = Aquatic_species(t - dt) + ( - Aquatic_reduction) * dt {NON-NEGATIVE}
+: s Biodiversity.Avifauna(t) = Avifauna(t - dt) + ( - Avifauna_reduction) * dt {NON-NEGATIVE}
+: s Biodiversity.Deforestation_awareness(t) = Deforestation_awareness(t - dt) + (Deforestation_awareness_increasing - Deforestation_awareness_decay) * dt {NON-NEGATIVE}
+: s Biodiversity.Forested_areas(t) = Forested_areas(t - dt) + (Reforestation_rate - Deforestation_rate) * dt {NON-NEGATIVE}
+: s Biodiversity.Plant_species(t) = Plant_species(t - dt) + ( - Plant_species_reduction) * dt {NON-NEGATIVE}
+: s Biodiversity.Terrestrial_species(t) = Terrestrial_species(t - dt) + ( - Terrestrial_reduction) * dt {NON-NEGATIVE}
+: s Fluvial_ecosystem.Pra_riverbank_erosion(t) = Pra_riverbank_erosion(t - dt) + (Increasing_erosion_rate) * dt {NON-NEGATIVE}
+    UNITS: sq m
+: s Fluvial_ecosystem.Pra_water_quality(t) = Pra_water_quality(t - dt) + (Increasing_quality_rate - Decreasing_water_quality_rate) * dt {NON-NEGATIVE}
+: s Fluvial_ecosystem.Riparian_vegetation(t) = Riparian_vegetation(t - dt) + ( - Vegetation_reduction) * dt {NON-NEGATIVE}
+: s Institutions_and_governance.Institutional_capacity(t) = Institutional_capacity(t - dt) + (Increasing_capacity - Decreasing_capacity) * dt {NON-NEGATIVE}
+: s Institutions_and_governance.Local_community_engaement(t) = Local_community_engaement(t - dt) + (Increasing_engagement - Decreasing_engagement) * dt {NON-NEGATIVE}
+: s Landscape_degradation.Landscape_degradation(t) = Landscape_degradation(t - dt) + (Degradation_rate - Recovery_rate) * dt {NON-NEGATIVE}
+    UNITS: ha
+: s Landscape_degradation.Landscape_degradation_awareness(t) = Landscape_degradation_awareness(t - dt) + (Awareness_increasing_rate - Awareness_decay) * dt {NON-NEGATIVE}
+: s Local_community.Cocoa_production_areas(t) = Cocoa_production_areas(t - dt) + (Increasing_cocoa_rate) * dt {NON-NEGATIVE}
+: s Local_community.Local_community_capacity(t) = Local_community_capacity(t - dt) + (Capacity_building_rate) * dt {NON-NEGATIVE}
+: s Local_community.Local_community_health(t) = Local_community_health(t - dt) + ( - Health_decreasing_rate) * dt {NON-NEGATIVE}
+: s Local_community."Local_community_well-being"(t) = "Local_community_well-being"(t - dt) + ("Well-being_increasing_rate" - "Well-being_decreasing_rate") * dt {NON-NEGATIVE}
+: s Local_community.Palm_production_areas(t) = Palm_production_areas(t - dt) + (Palm_oil_increasing - Palm_oil_decreasing) * dt {NON-NEGATIVE}
+: s Sustainable_mining_activities.Attitude(t) = Attitude(t - dt) + (Increasing_attitude - Attiitude_erosion_rate) * dt {NON-NEGATIVE}
+: s Sustainable_mining_activities.Perceived_Behavioural_Control(t) = Perceived_Behavioural_Control(t - dt) + (PBC_rate - PBC_erosion_rate) * dt {NON-NEGATIVE}
+: s Sustainable_mining_activities.Subjective_norms(t) = Subjective_norms(t - dt) + (SN_rate - SN_erosion_rate) * dt {NON-NEGATIVE}
+: s Sustainable_mining_activities.Sustainable_mining_intention(t) = Sustainable_mining_intention(t - dt) + (Intention_rate - Intention_erosion_rate) * dt {NON-NEGATIVE}
+    UNITS: Dimensionless
+: c Biodiversity."Deforestation_(ha)" = -1*(Forested_areas - (DELAY(Forested_areas;  1)))
+: c Local_community.Cocoa_expansion_rate = Cocoa_production_areas-DELAY(Cocoa_production_areas;  1)
+: c Local_community.Palm_oil_expansion_rate = Palm_production_areas-DELAY(Palm_production_areas;  1)
+: c Financial_incentive_for_training = Miners_training_for_sustainability
+: c Overall_strategy_cost = (Institutions_and_governance.Environmental_monitoring_interventions*Monitoring_costs)+(Institutions_and_governance.Strengthen_enforcement*Enforcement_costs)+(Institutions_and_governance.Professionalise_institutions*Governance_reform_costs)+(Education_costs*Awareness_raising_initiatives)+(Local_community.Promote_alternative_livelihoods*Livelihoods_costs)+("Facilitate_community-led_initiatives"*Community_land_reclamation_cost)+(Cost_inclusiveness*Local_community.Enhance_inclusiveness)+(Institutions_and_governance.Capacity_building*Capacity_building_costs)+(Institutions_and_governance.Engagememt_initiatives*Engagement_cost)+(.Incentivise_landscape_recovery*Recovery_cost)+(Coordination_cost*Institutions_and_governance.Institutional_coordination)+(Biodiversity.Forest_protection_policy*Forest_protection_cost)+(Institutions_and_governance.Climate_finance*Climate_adaptation_cost)+(Miners_training_cost*Miners_training_for_sustainability)++(Waste_management*Waste_management_cost)+(Loan_for_transition*Loan_cost)+(Reforestation_cost*Biodiversity.Reforestation_policy)
+: c Training_efforts = Miners_training_for_sustainability
+: c "ASM/LSM".Local_gold_demand = Scale_factor*.Gold_demand_Ghana
+: c "ASM/LSM".Gold_production_ASM = "Yearly_gold_production_ASM/mine"*Artisanal_Small_mining
+: c "ASM/LSM".Gold_production_LSM = "Yearly_gold_production_LSM/mine"*Large_Scale_Mining
+: c "ASM/LSM".Overall_yearly_gold_production = Gold_production_ASM+Gold_production_LSM
+: c "ASM/LSM".Unsatisfied_demand_ratio = MAX(0;  Local_gold_demand-Overall_yearly_gold_production)
+: c "ASM/LSM".ASM_demand = ASM_demand_rate*Unsatisfied_demand_ratio
+: c "ASM/LSM".Expected_ASM_profitability = ASM_demand*Base_ASM_profitability
+: c "ASM/LSM".Profitability_attractiveness = GRAPH(Expected_ASM_profitability)
+Points: (0, 0,000), (1,5e+08, 0,01263), (3e+08, 0,04341), (4,5e+08, 0,1165), (6e+08, 0,2676), (7,5e+08, 0,500), (9e+08, 0,7324), (1,05e+09, 0,8835), (1,2e+09, 0,9566), (1,35e+09, 0,9874), (1,5e+09, 1,000)
+: c Local_community.Climate_impact_on_soil_productivity = IF .Consecutive_dry_days < 10 THEN 0,9 ELSE IF .Consecutive_dry_days < 25 THEN 0,6 ELSE IF .Consecutive_dry_days<40 THEN 0,3 ELSE 0,1
+: c Local_community."Cocoa_yield/ha" = Base_cocoa_yield*Climate_impact_on_soil_productivity
+: c Local_community.Cocoa_production = "Cocoa_yield/ha"*Cocoa_production_areas
+: c Local_community.Cocoa_production_income = Cocoa_production*"Cocoa_income/tons"
+: c Local_community."Palm_fruit_yield/ha" = Base_palm_yield*Climate_impact_on_soil_productivity
+: c Local_community.Palm_production = "Palm_fruit_yield/ha"*Palm_production_areas
+: c Local_community.Palm_oil_production_income = Palm_production*"Palm_oil_income/ha"
+: c Local_community.Alternative_economic_resources = Local_community_capacity*(Cocoa_production_income+Palm_oil_production_income)*Promote_alternative_livelihoods/Maximum_alternative_sources
+: f "ASM/LSM".ASM_increasing_rate = (Max_ASM_potential_expansion*Profitability_attractiveness*(1-Local_community.Alternative_economic_resources))*Artisanal_Small_mining {UNIFLOW}
+: f "ASM/LSM".Miners_leaving = 0,05*Artisanal_Small_mining {UNIFLOW}
+    OUTFLOW PRIORITY: 1
+: c Institutions_and_governance.Environmental_monitoring_capacity = (Base_monitoring*Institutional_capacity)+Environmental_monitoring_interventions
+: c Institutions_and_governance.Law_enforcement_effectiveness = Institutional_capacity*Environmental_monitoring_capacity*Strengthen_enforcement
+: c "ASM/LSM".Miners'_risk_tolerance = Max_risk_tolerance/1-(Local_community.Local_community_capacity*Institutions_and_governance.Law_enforcement_effectiveness)
+: c "ASM/LSM".Environmental_concerns = Sustainable_mining_activities.Sustainable_mining_intention
+: f "ASM/LSM".Illegal_ASM_increasing_rate =  Artisanal_Small_mining*((Miners'_risk_tolerance*Base_illegal_ASM_rate)*(1-Environmental_concerns))*(1-(Illegal_ASM/Artisanal_Small_mining)) {UNIFLOW}
+    OUTFLOW PRIORITY: 2
+: c "ASM/LSM".Willingness_to_become_legal = Base_willingness*Sustainable_mining_activities.Sustainable_mining_intention*(1-Miners'_risk_tolerance)
+: f "ASM/LSM".Legalization_outflow = Illegal_ASM*Willingness_to_become_legal*Legalization_rate {UNIFLOW}
+: c "ASM/LSM".LSM_demand = MAX (0;  Unsatisfied_demand_ratio*LSM_gold_demand_rate)
+: c "ASM/LSM".LSM_attractiveness = Favourable_regulatory_environment*LSM_investment_capital_availability*Expected_profitability
+: f "ASM/LSM".LSM_increasing_rate = Max_LSM_potential_expansion*LSM_demand*LSM_attractiveness {UNIFLOW}
+: c "ASM/LSM".Training_effectiveness = Institutions_and_governance.Institutional_capacity+.Financial_incentive_for_training
+: c "ASM/LSM".ASM_willingness_to_be_trained = Sustainable_mining_activities.Sustainable_mining_intention*(1-Miners'_risk_tolerance)
+: c "ASM/LSM".Miners_entering_the_training_program = (Artisanal_Small_mining*ASM_willingness_to_be_trained)+Legalized_miners
+: c "ASM/LSM".Max_ASM_population = Artisanal_Small_mining+Illegal_ASM
+: f "ASM/LSM".Training_increasing_rate = MIN((.Training_efforts*Training_effectiveness*(Miners_entering_the_training_program/Max_ASM_population));  (1-Miners_training)) {UNIFLOW}
+: c "ASM/LSM".Gold_production_illegal = "Yearly_gold_production_ASM/mine"*Illegal_ASM
+: c "ASM/LSM".Willingness_barrier = 1-ASM_willingness_to_be_trained
+: c Biodiversity.Fluvial_biodiversity = GRAPH(Aquatic_species)
+Points: (0,0, 0,000), (10,0, 0,1505), (20,0, 0,2868), (30,0, 0,410), (40,0, 0,5215), (50,0, 0,6225), (60,0, 0,7138), (70,0, 0,7964), (80,0, 0,8711), (90,0, 0,9388), (100,0, 1,000) {GF EXTRAPOLATED}
+: c Biodiversity.Deforestation_index = GRAPH("Deforestation_(ha)")
+Points: (0, 0,000), (1000, 0,01263), (2000, 0,04341), (3000, 0,1165), (4000, 0,2676), (5000, 0,500), (6000, 0,7324), (7000, 0,8835), (8000, 0,9566), (9000, 0,9874), (10000, 1,000)
+: c Biodiversity.Terrestrial_biodiversity = GRAPH(Deforestation_index)
+Points: (0,000, 1,000), (0,100, 0,900), (0,200, 0,800), (0,300, 0,700), (0,400, 0,600), (0,500, 0,500), (0,600, 0,400), (0,700, 0,300), (0,800, 0,200), (0,900, 0,100), (1,000, 0,000)
+: c Biodiversity.Biodiversity_index = (Fluvial_biodiversity+Terrestrial_biodiversity)/2
+: c Fluvial_ecosystem.Fluvial_ecosystem_degradation = 1-Pra_water_quality
+: c BCS_nexus_challenges.BCS_Nexus_index = Biodiversity.Biodiversity_index*Local_community."Local_community_well-being"*(1-Landscape_degradation.Landscape_degradation)*Fluvial_ecosystem.Fluvial_ecosystem_degradation
+: f Biodiversity.Aquatic_reduction = 0,1*Aquatic_species*Fluvial_ecosystem.Pra_water_quality {UNIFLOW}
+: f Biodiversity.Avifauna_reduction = 0,1*(1-"Deforestation_(ha)")*Avifauna {UNIFLOW}
+: c Institutions_and_governance.Trust_rate = GRAPH(Local_community_engaement)
+Points: (0,0, 0,000), (10,0, 0,01263), (20,0, 0,04341), (30,0, 0,1165), (40,0, 0,2676), (50,0, 0,500), (60,0, 0,7324), (70,0, 0,8835), (80,0, 0,9566), (90,0, 0,9874), (100,0, 1,000)
+: c Institutions_and_governance.Public_trust = Institutional_capacity*Trust_rate
+: c Landscape_degradation.Information_dissemination_effectiveness = Institutions_and_governance.Environmental_monitoring_capacity*Institutions_and_governance.Public_trust
+: c Biodiversity.Deforestation_awareness_because_of_monitoring = "Deforestation_(ha)"*Landscape_degradation.Information_dissemination_effectiveness
+: c Biodiversity.Deforestation_awareness_experience = Landscape_degradation.Sensitivity_to_experience*Population_exposed_to_deforestation
+: f Biodiversity.Deforestation_awareness_increasing = MIN(Deforestation_awareness_because_of_monitoring++.Awareness_raising_initiatives+(Deforestation_awareness_experience/100);  (1-Deforestation_awareness)) {UNIFLOW}
+: f Biodiversity.Deforestation_awareness_decay = Deforestation_awareness*Deforestation_awareness_decay_fraction {UNIFLOW}
+: c Biodiversity.Reforestation_projects = 15*Reforestation_policy
+: c Biodiversity.Reforestation_effectiveness = Base_reforestation_effectiveness*Institutions_and_governance.Institutional_capacity
+: c Institutions_and_governance.Climate_adaptation_capability = Institutional_capacity*Climate_finance
+: f Biodiversity.Reforestation_rate = (Reforestation_projects*Reforested_areas_per_project)*Reforestation_effectiveness+Institutions_and_governance.Climate_adaptation_capability {UNIFLOW}
+: c Biodiversity.Sustainability_concerns_reduction_LSM = GRAPH(Sustainable_mining_activities.Sustainable_mining_intention)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+    UNITS: Dimensionless
+: c Biodiversity.LSM_deforestation = (Base_LSM_deforestation*"ASM/LSM".Gold_production_LSM)*Sustainability_concerns_reduction_LSM
+: c Biodiversity."Sustainability_concern_reduction_(illegal)" = GRAPH(Sustainable_mining_activities.Sustainable_mining_intention)
+Points: (0,000, 0,000), (0,100, 0,06121), (0,200, 0,1289), (0,300, 0,2036), (0,400, 0,2862), (0,500, 0,3775), (0,600, 0,4785), (0,700, 0,590), (0,800, 0,7132), (0,900, 0,8495), (1,000, 1,000) {GF EXTRAPOLATED}
+: c Biodiversity.ASM_deforestation = (Base_illegal_deforestation*"ASM/LSM".Gold_production_ASM)*"Sustainability_concern_reduction_(illegal)"
+: c Biodiversity.Potential_deforestation_rate_due_to_mining = (LSM_deforestation+ASM_deforestation)
+: c Local_community.Agricultural_expansion_per_year = Palm_oil_expansion_rate+Cocoa_expansion_rate
+: c Biodiversity.Deforestation_due_to_agriculture = Local_community.Agricultural_expansion_per_year*Agricultural_deforeestation_coefficient
+: c Biodiversity."Protected_forest_(ha)" = IF Forest_protection_policy>0 THEN (Forest_protection_policy*"Base_protected_forest_(%)"*(Institutions_and_governance.Law_enforcement_effectiveness+Base_law_enforcement)*Forested_areas) ELSE ("Base_protected_forest_(%)"*Institutions_and_governance.Law_enforcement_effectiveness)*Forested_areas
+: f Biodiversity.Deforestation_rate = (Potential_deforestation_rate_due_to_mining+Deforestation_due_to_agriculture)-"Protected_forest_(ha)" {UNIFLOW}
+: f Biodiversity.Plant_species_reduction = 0,08*Plant_species*(1-"Deforestation_(ha)") {UNIFLOW}
+: f Biodiversity.Terrestrial_reduction = 0,07*(1-"Deforestation_(ha)")*Terrestrial_species {UNIFLOW}
+: c Biodiversity.Lack_of_awareness = 1-(Deforestation_awareness*Landscape_degradation.Landscape_degradation_awareness)
+: c Fluvial_ecosystem.Water_volume_ASM = "ASM/LSM".Gold_production_ASM*Water_volume_per_tons_of_gold*ASM_increasing_coefficient
+: c Fluvial_ecosystem.Water_volume_LSM = "ASM/LSM".Gold_production_LSM*Water_volume_per_tons_of_gold*LSM_reduction_coefficient
+: c Fluvial_ecosystem.Water_recycling_rate = GRAPH(Sustainable_mining_activities.Sustainable_mining_intention)
+Points: (0,00, 0,000), (1,00, 0,01263), (2,00, 0,04341), (3,00, 0,1165), (4,00, 0,2676), (5,00, 0,500), (6,00, 0,7324), (7,00, 0,8835), (8,00, 0,9566), (9,00, 0,9874), (10,00, 1,000)
+    UNITS: Dimensionless
+: c Fluvial_ecosystem.Water_exploitation_for_mining_activities = (Water_volume_ASM+Water_volume_LSM)-((Water_volume_LSM+Water_volume_ASM)*Water_recycling_rate)
+: c Fluvial_ecosystem."Self-purification_reduction_factor" = GRAPH(Water_exploitation_for_mining_activities)
+Points: (0, 1,000), (10000, 0,9874), (20000, 0,9566), (30000, 0,8835), (40000, 0,7324), (50000, 0,686), (60000, 0,648), (70000, 0,633), (80000, 0,638), (90000, 0,624), (100000, 0,590) {GF EXTRAPOLATED}
+: c Fluvial_ecosystem.Climate_change_impacts_coefficient = IF .Consecutive_dry_days<=5 THEN 0,9 ELSE IF .Consecutive_dry_days<10 THEN 0,7 ELSE IF .Consecutive_dry_days < 30 THEN 0,5 ELSE IF .Consecutive_dry_days < 45 THEN 0,3ELSE 0,1
+: c Fluvial_ecosystem."Base_self-purification_rate" = 0,8*("Self-purification_reduction_factor"*Climate_change_impacts_coefficient)
+: f Fluvial_ecosystem.Increasing_quality_rate = "Base_self-purification_rate"*(1-Pra_water_quality) {UNIFLOW}
+: c Fluvial_ecosystem."Pollutants_concentration_reduction_coeffcient(illegal)" = (Sustainable_mining_activities.Sustainable_mining_intention*+.Loan_for_transition+"ASM/LSM".Miners_training)
+: c Fluvial_ecosystem.Pollutant_concentration_illegal = ("ASM/LSM".Gold_production_illegal*Pollutant_concentration_ASM)*Pollutant_increase_coefficient_Illegal*(1-"Pollutants_concentration_reduction_coeffcient(illegal)")
+: c Fluvial_ecosystem."Pollutants_concentration_reduction_coeffcient(ASM)" = Sustainable_mining_activities.Sustainable_mining_intention+"ASM/LSM".Miners_training+.Loan_for_transition
+: c Fluvial_ecosystem."Pollutants_concentration_(ASM)" = IF "Pollutants_concentration_reduction_coeffcient(ASM)">0 THEN (Pollutant_concentration_ASM*"ASM/LSM".Gold_production_ASM)*(1-"Pollutants_concentration_reduction_coeffcient(ASM)") ELSE Pollutant_concentration_ASM*"ASM/LSM".Gold_production_ASM
+: c Fluvial_ecosystem."Pollutants_concentration_reduction_coeffcient(LSM)" = IF Sustainable_mining_activities.Sustainable_mining_intention>=0,6 THEN 0,8 ELSE 0,5
+: c Fluvial_ecosystem.Pollutants_concentration_LSM = (Pollutants_concentration_LSM_1*"ASM/LSM".Gold_production_LSM)*"Pollutants_concentration_reduction_coeffcient(LSM)"
+: c Fluvial_ecosystem.Pollutant_concentration = Pollutant_concentration_illegal+"Pollutants_concentration_(ASM)"+Pollutants_concentration_LSM
+: c Fluvial_ecosystem.Pollution_impact_rate = Pollutant_concentration/41000
+: f Fluvial_ecosystem.Decreasing_water_quality_rate = Pollution_impact_rate*Pra_water_quality {UNIFLOW}
+: c Fluvial_ecosystem.Excavation_reduction_coefficient_ASM = GRAPH(Sustainable_mining_activities.Sustainable_mining_intention)
+Points: (0,000, 0,0000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,5000), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,0000)
+    UNITS: Dimensionless
+: c Fluvial_ecosystem.Excacation_along_riverbank_ASM = ("Excavation_along_the_riverbank/tons_of_gold"*"ASM/LSM".Gold_production_ASM)*Excavation_along_riverbank_increasing_coeff_ASM*Excavation_reduction_coefficient_ASM
+: c Fluvial_ecosystem.Excavation_reduction_coefficient_LSM = GRAPH(Sustainable_mining_activities.Sustainable_mining_intention)
+Points: (0,000, 0,000), (0,100, 0,02526), (0,200, 0,08682), (0,300, 0,2331), (0,400, 0,5352), (0,500, 1,000), (0,600, 1,465), (0,700, 1,767), (0,800, 1,913), (0,900, 1,975), (1,000, 2,000)
+    UNITS: Dimensionless
+: c Fluvial_ecosystem.Excavation_along_the_riverbank_LSM = ("ASM/LSM".Gold_production_LSM*"Excavation_along_the_riverbank/tons_of_gold")*Excavation_reduction_coefficient_ASM*Excavation_reduction_coefficient_LSM
+: c Fluvial_ecosystem.Excavation_along_the_riverbank = Excacation_along_riverbank_ASM+Excavation_along_the_riverbank_LSM
+: f Fluvial_ecosystem.Increasing_erosion_rate = Excavation_along_the_riverbank*Riverbank_erosion_rate {UNIFLOW}
+    UNITS: sq m/Years
+: c Fluvial_ecosystem.Excavation_impacts_on_riparian_vegetation = Vegetation_loss_due_to_excavation_coefficient*Excavation_along_the_riverbank
+: f Fluvial_ecosystem.Vegetation_reduction = MIN(Riparian_vegetation;  Excavation_impacts_on_riparian_vegetation) {UNIFLOW}
+: c Fluvial_ecosystem.Riverback_erosion_index = Pra_riverbank_erosion/Max_erosion
+: c Fluvial_ecosystem.Water_quality_index = Pra_water_quality
+: c Institutions_and_governance.Training_investements = Strengthen_enforcement
+: c Institutions_and_governance.Resources_allocation = Strengthen_enforcement
+: c Institutions_and_governance.Environmental_awareness = Biodiversity.Deforestation_awareness+Landscape_degradation.Landscape_degradation_awareness
+: c Institutions_and_governance.Institutional_awareness = Environmental_awareness*Awareness_impact_coefficient
+: f Institutions_and_governance.Increasing_capacity = ((Training_investements+Professionalise_institutions+Resources_allocation+Public_trust+Institutional_awareness+Capacity_building)*Max_increasing_rate*(1-Institutional_capacity)/5) {UNIFLOW}
+: c Institutions_and_governance.Fighting_instability = Institutional_coordination
+: c Institutions_and_governance.Political_instability = 1-Fighting_instability
+: c Institutions_and_governance.Fighting_corruption = Institutional_coordination
+: c Institutions_and_governance.Corruption_rate = 1-Fighting_corruption
+: c Institutions_and_governance.Corruption_loss = Corruption_rate*Institutional_capacity
+: c Institutions_and_governance.Institutional_fragmentation = Base_fragmentation*(1-Institutional_coordination)
+: f Institutions_and_governance.Decreasing_capacity = MIN(Institutional_capacity; Political_instability+Corruption_loss+Institutional_fragmentation) {UNIFLOW}
+: c Institutions_and_governance.Engagement_initiatives_effectiveness = Institutional_capacity
+: f Institutions_and_governance.Increasing_engagement = (Environmental_awareness*Awareness_impact)+(Local_community."Local_community_well-being"*"Well-being_impact")+(5*Engagememt_initiatives*Engagement_initiatives_effectiveness) {UNIFLOW}
+: c Institutions_and_governance.Decreasing_rate = GRAPH(Institutional_capacity)
+Points: (0,000, 1,000), (0,100, 0,9874), (0,200, 0,9566), (0,300, 0,8835), (0,400, 0,7324), (0,500, 0,500), (0,600, 0,2676), (0,700, 0,1165), (0,800, 0,04341), (0,900, 0,01263), (1,000, 0,000)
+: f Institutions_and_governance.Decreasing_engagement = Decreasing_rate*Local_community_engaement {UNIFLOW}
+: c Institutions_and_governance.Institutional_capacity_barrier = 1-Institutional_capacity
+: c Institutions_and_governance.Law_enforcement_barrier = 1-Law_enforcement_effectiveness
+: c Institutions_and_governance.Monitoring_barrier = 1-Environmental_monitoring_capacity
+: c Institutions_and_governance.Trust_barrier = 1-Public_trust
+: c Landscape_degradation.Awareness_from_monitoring = (Landscape_degradation*Information_dissemination_effectiveness)/Monitoring_awareness_normalization
+: c Landscape_degradation.Awareness_normalization = 50000*1000000000
+: c Landscape_degradation.Awareness_from_personal_experiences = ((Landscape_degradation*Sensitivity_to_experience)*Population_exposed_to_degradation)/Awareness_normalization
+: c Landscape_degradation.Awareness_raising_effectiveness = GRAPH(Institutions_and_governance.Institutional_capacity)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: f Landscape_degradation.Awareness_increasing_rate = (Awareness_from_monitoring+Awareness_from_personal_experiences)+(.Awareness_raising_initiatives*Awareness_raising_effectiveness) {UNIFLOW}
+: f Landscape_degradation.Awareness_decay = Landscape_degradation_awareness*Decay_fraction {UNIFLOW}
+: c Landscape_degradation.Excavation_reduction_coefficient_ASM = Sustainable_mining_activities.Sustainable_mining_intention
+    UNITS: Dimensionless
+: c Landscape_degradation.Excavation_degradation_from_ASM = ("ASM/LSM".Gold_production_ASM*"Excavation_per_tons_of_gold_(mq)")*ASM_impact_multiplier*Excavation_reduction_coefficient_ASM
+: c Landscape_degradation.Excavation_reduction_coefficient_LSM = GRAPH(Sustainable_mining_activities.Sustainable_mining_intention)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: c Landscape_degradation.Excavation_degradation_from_LSM = ("Excavation_per_tons_of_gold_(mq)"*"ASM/LSM".Gold_production_LSM)*LSM_impact_multiplier*Excavation_reduction_coefficient_LSM
+: c Landscape_degradation.Degradation_from_excavation = Excavation_degradation_from_ASM+Excavation_degradation_from_LSM
+: c Landscape_degradation.Waste_reduction_coefficient_LSM = Sustainable_mining_activities.Sustainable_mining_intention^0,8
+: c Landscape_degradation.Degraded_surface_waste_disposal_LSM = ("ASM/LSM".Gold_production_LSM*"Surface_of_waste_disposal/tons_of_gold")*LSM_waste_multiplier/Waste_reduction_coefficient_LSM
+: c Landscape_degradation.Waste_reduction_coefficient_ASM = Sustainable_mining_activities.Sustainable_mining_intention^0,3
+: c Landscape_degradation.Degraded_surface_waste_disposal_ASM = ("ASM/LSM".Gold_production_ASM*"Surface_of_waste_disposal/tons_of_gold")*ASM_waste_multiplier*Waste_reduction_coefficient_ASM
+: c Landscape_degradation.Degradation_from_waste_disposal = (Degraded_surface_waste_disposal_LSM+Degraded_surface_waste_disposal_ASM)*(1-.Waste_management     )
+: c Landscape_degradation.Degradation_due_to_mining_activities = (Degradation_from_excavation)+(Degradation_from_waste_disposal)
+    UNITS: Hectares/Years
+: c Landscape_degradation.Degradation_index = IF .Loan_for_transition > 0 THEN MIN (1;  .Loan_for_transition*(Degradation_due_to_mining_activities/Max_landscape_degradation)) ELSE MIN (1;  (Degradation_due_to_mining_activities/Max_landscape_degradation))
+: f Landscape_degradation.Degradation_rate = Degradation_index*(1-Landscape_degradation) {UNIFLOW}
+    UNITS: ha/Years
+: c Landscape_degradation."Comply_due_to_law_enforcement_(ASM)" = GRAPH(Institutions_and_governance.Law_enforcement_effectiveness)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: c Landscape_degradation."Comply_due_to_sustainable_intention_(ASM)" = GRAPH(Sustainable_mining_activities.Sustainable_mining_intention)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: c Landscape_degradation.ASM_comply_multiplier = ("Comply_due_to_law_enforcement_(ASM)"+"Comply_due_to_sustainable_intention_(ASM)")/2
+: c Landscape_degradation."Annual_recovery_rate_(ASM)" = Landscape_recovery_regulation_requirement*ASM_comply_multiplier
+: c Landscape_degradation."Comply_due_to_law_enforcement_(illegal)" = IF Institutions_and_governance.Law_enforcement_effectiveness <0,2 THEN 0,0005 ELSE IF Institutions_and_governance.Law_enforcement_effectiveness<0,6 THEN 0,2 ELSE IF Institutions_and_governance.Law_enforcement_effectiveness<0,8 THEN 0,4 ELSE 0,6
+: c Landscape_degradation."Comply_due_to_sustainable_intention_(illegal)" = IF Sustainable_mining_activities.Sustainable_mining_intention<0,2 THEN 0,05 ELSE IF Sustainable_mining_activities.Sustainable_mining_intention<0,5 THEN 0,2 ELSE IF Sustainable_mining_activities.Sustainable_mining_intention<0,8 THEN 0,5 ELSE 0,7
+: c Landscape_degradation.Illegal_normal_comply_rate = "Comply_due_to_law_enforcement_(illegal)"*"Comply_due_to_sustainable_intention_(illegal)"
+: c Landscape_degradation."Annual_recovery_rate_(illegal)" = Landscape_recovery_regulation_requirement*Illegal_normal_comply_rate
+: c Landscape_degradation."Annual_recovery_rate_(LSM)" = LSM_normal_comply_rate*Landscape_recovery_regulation_requirement
+: c Landscape_degradation.Miners_annual_recovery = ("Annual_recovery_rate_(ASM)"+"Annual_recovery_rate_(illegal)"+"Annual_recovery_rate_(LSM)")/3
+: c Landscape_degradation.Engagement_and_intentions = IF Institutions_and_governance.Engagememt_initiatives>0 THEN Institutions_and_governance.Engagememt_initiatives*Sustainable_mining_activities.Sustainable_mining_intention*Landscape_degradation_awareness ELSE 0,2*Sustainable_mining_activities.Sustainable_mining_intention*Landscape_degradation_awareness
+: c Landscape_degradation.Community_land_reclamation_effectiveness = GRAPH(Engagement_and_intentions)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: c Landscape_degradation."Community-based_recovery" = Community_land_reclamation_effectiveness*."Facilitate_community-led_initiatives"
+: c Landscape_degradation.Land_recovery_index = IF .Incentivise_landscape_recovery>0 THEN (Miners_annual_recovery+"Community-based_recovery")*.Incentivise_landscape_recovery ELSE (Miners_annual_recovery+"Community-based_recovery")
+: f Landscape_degradation.Recovery_rate = Land_recovery_index {UNIFLOW}
+    UNITS: Hectares/Years
+: c Landscape_degradation.Landscape_quality = 1-Landscape_degradation
+: c Local_community.Capacity_building_effectiveness = GRAPH(Institutions_and_governance.Institutional_capacity)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: f Local_community.Capacity_building_rate = .Community_capacity_building_initiatives*Capacity_building_effectiveness*(1-Local_community_capacity) {UNIFLOW}
+: f Local_community.Health_decreasing_rate = MIN((1-Local_community_health);    Water_quality_impact_factor*(Fluvial_ecosystem.Pra_water_quality/100)) {UNIFLOW}
+: c Local_community.Unsatisfiend_cocoa_demand = .Cocoa_demand-Cocoa_production
+: c Local_community.Demand_for_cocoa_areas = Unsatisfiend_cocoa_demand/"Cocoa_yield/ha"
+: f Local_community.Increasing_cocoa_rate = Demand_for_cocoa_areas {UNIFLOW}
+: c Local_community.Unsatisfied_palm_demand = .Palm_fruit_demand-Palm_production
+: c Local_community.Demand_for_palm_oil_areas = Unsatisfied_palm_demand/"Palm_fruit_yield/ha"
+: f Local_community.Palm_oil_increasing = Demand_for_palm_oil_areas {UNIFLOW}
+: c Local_community.Local_employment_in_ASM = ASM_employment_rate*"ASM/LSM".Artisanal_Small_mining
+: c Local_community.ASM_contribution_to_income = ASM_contribution_to_income_rate*Local_employment_in_ASM
+: c Local_community.Local_employment_in_LSM = LSM_employment_rate*"ASM/LSM".Gold_production_LSM
+: c Local_community.LSM_contribution_to_income = LSM_contribution_to_income_rate*Local_employment_in_LSM
+: c Local_community.Income_due_to_mining = ASM_contribution_to_income+LSM_contribution_to_income
+: c Local_community.Income_impact = GRAPH(Income_due_to_mining)
+Points: (0, 0,000), (2000000, 0,02526), (4000000, 0,08682), (6000000, 0,2331), (8000000, 0,5352), (10000000, 1,000), (12000000, 1,465), (14000000, 1,767), (16000000, 1,913), (18000000, 1,975), (20000000, 2,000)
+: f Local_community."Well-being_increasing_rate" = (Alternative_economic_resources+Income_impact+."Facilitate_community-led_initiatives"+Enhance_inclusiveness)*(1-"Local_community_well-being") {UNIFLOW}
+: c Local_community.Environmental_degradation = Fluvial_ecosystem.Pra_water_quality+Landscape_degradation.Landscape_degradation+Biodiversity.Deforestation_index
+: c Local_community.Social_conflict_and_inequality = GRAPH("ASM/LSM".Illegal_ASM)
+Points: (0, 0,000), (1000, 0,02526), (2000, 0,08682), (3000, 0,2331), (4000, 0,5352), (5000, 1,000), (6000, 1,465), (7000, 1,767), (8000, 1,913), (9000, 1,975), (10000, 2,000)
+: f Local_community."Well-being_decreasing_rate" = (Environmental_degradation*Social_conflict_and_inequality)*"Local_community_well-being" {UNIFLOW}
+: c Local_community.Alternative_sources_barrier = 1-Alternative_economic_resources
+: c Local_community.Community_capacity_barrier = 1-Local_community_capacity
+: c Local_community."Community_well-being_barrier" = 1-"Local_community_well-being"
+: f Sustainable_mining_activities.Increasing_attitude = MIN((Landscape_degradation.Landscape_degradation_awareness*0,8)+(Fluvial_ecosystem.Pra_water_quality*0,6)+(Fluvial_ecosystem.Riverback_erosion_index*0,6);  (1-Attitude)) {UNIFLOW}
+: c Sustainable_mining_activities.Attitude_aggregation = (Landscape_degradation.Landscape_degradation_awareness+Fluvial_ecosystem.Riverback_erosion_index+Fluvial_ecosystem.Pra_water_quality)/4
+: c Sustainable_mining_activities.Attitude_erosion = GRAPH(Attitude_aggregation)
+Points: (0,000, 1,000), (0,100, 0,9874), (0,200, 0,9566), (0,300, 0,8835), (0,400, 0,7324), (0,500, 0,500), (0,600, 0,2676), (0,700, 0,1165), (0,800, 0,04341), (0,900, 0,01263), (1,000, 0,000)
+: f Sustainable_mining_activities.Attiitude_erosion_rate = Attitude*Attitude_erosion {UNIFLOW}
+: f Sustainable_mining_activities.SN_rate = (Local_community."Local_community_well-being"+Local_community.Local_community_health+Local_community.Alternative_economic_resources)*(1-Subjective_norms) {UNIFLOW}
+: f Sustainable_mining_activities.Intention_rate = MIN(((Attitude*0,312)+(SN_rate*0,18)+(Perceived_Behavioural_Control*0,39));  (1-Sustainable_mining_intention)) {UNIFLOW}
+    UNITS: Per Year
+: c Sustainable_mining_activities.Intention_erosion = GRAPH(Intention_rate)
+Points: (0,000, 1,000), (0,100, 0,9874), (0,200, 0,9566), (0,300, 0,8835), (0,400, 0,7324), (0,500, 0,500), (0,600, 0,2676), (0,700, 0,1165), (0,800, 0,04341), (0,900, 0,01263), (1,000, 0,000)
+: f Sustainable_mining_activities.Intention_erosion_rate = Intention_erosion*Sustainable_mining_intention {UNIFLOW}
+    UNITS: Per Year
+: c Sustainable_mining_activities.Combined_PBC_drivers = MIN(1;  (0,8*Institutions_and_governance.Law_enforcement_effectiveness+0,5*"ASM/LSM".Miners_training+0,8*.Loan_for_transition))
+: f Sustainable_mining_activities.PBC_rate = Combined_PBC_drivers*(1-Perceived_Behavioural_Control) {UNIFLOW}
+: c Sustainable_mining_activities.PBC_erosion = GRAPH(Combined_PBC_drivers)
+Points: (0,000, 1,000), (0,100, 0,9874), (0,200, 0,9566), (0,300, 0,8835), (0,400, 0,7324), (0,500, 0,500), (0,600, 0,2676), (0,700, 0,1165), (0,800, 0,04341), (0,900, 0,01263), (1,000, 0,000)
+: f Sustainable_mining_activities.PBC_erosion_rate = PBC_erosion*Perceived_Behavioural_Control {UNIFLOW}
+: c Sustainable_mining_activities.SN_aggregation = (Local_community.Local_community_health+Local_community."Local_community_well-being"+Local_community.Alternative_economic_resources)/4
+: c Sustainable_mining_activities.SN_erosion = GRAPH(SN_aggregation)
+Points: (0,000, 1,000), (0,100, 0,9874), (0,200, 0,9566), (0,300, 0,8835), (0,400, 0,7324), (0,500, 0,500), (0,600, 0,2676), (0,700, 0,1165), (0,800, 0,04341), (0,900, 0,01263), (1,000, 0,000)
+: f Sustainable_mining_activities.SN_erosion_rate = SN_erosion*Subjective_norms {UNIFLOW}
+
+{ TIME SPECS }
+STARTTIME=1
+STOPTIME=20
+DT=0,030303030303
+INTEGRATION=EULER
+RUNMODE=NORMAL
+PAUSEINTERVAL=0
