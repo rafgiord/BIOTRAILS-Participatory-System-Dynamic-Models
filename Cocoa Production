@@ -1,0 +1,507 @@
+{ VERSION 4.0 }
+
+{ The model has 289 (289) variables (array expansion in parens).
+  In root model and 5 additional modules with 0 sectors.
+  Stocks: 24 (24) Flows: 38 (38) Converters: 227 (227)
+  Constants: 80 (80) Equations: 185 (185) Graphicals: 30 (30)  }
+
+{ INITIALIZATION EQUATIONS }
+: s Environmental_degradation.Accumulated_waste = 1000
+: s Environmental_degradation.Area_for_illicit_crop = 14000
+: s Environmental_degradation.Cocoa_demand_Ucayali_region = 25000000
+: s Environmental_degradation.Cocoa_production_areas = 26000
+: s Environmental_degradation.Forested_areas = 600000
+: s Environmental_degradation.Illegal_mining_areas = 500
+: s Environmental_degradation.Illegal_wood_extraction_areas = 0
+    UNITS: hectares
+    DOCUMENT: The accumulated area that has been subjected to illegal wood extraction.
+: s Environmental_degradation.Legal_Wood_extraction_areas = 400000
+    UNITS: hectares
+    DOCUMENT: The accumulated area designated and used for legal wood extraction.
+: s Environmental_degradation.Monoculture_production_areas = 50160
+: s Environmental_degradation.Soil_contamination = 50000
+: s Environmental_degradation.Traditional_production_areas = 33440
+: s Environmental_degradation.Water_contamination = 50
+: s Institution_and_governance.Institutional_capacity = 0,3
+: s Institution_and_governance.International_commitment_pressure = 0,2
+: s Institution_and_governance.Local_community_engagement = 0,1
+: s Local_community.Community_members_engaged_in_AIGAs = 0,3
+: s Local_community.Environmental_awareness = 0,5
+: s Local_community.Local_community_traditional_knowledge = 0,6
+: s Local_community."Local_community_well-being" = 0,6
+: s Local_community.Migrant_population = 5000
+: s Sustainable_behaviour.Attitude = 0,1
+: s Sustainable_behaviour.Perceived_Behavioural_Control = 0,1
+: s Sustainable_behaviour.Subjective_norms = 0,1
+: s Sustainable_behaviour.Sustainable_behaviour_intention = 0,1
+    UNITS: Dimensionless
+: c Agricultural_diversification_cost = 5
+: c Awareness_cost = 5
+: c Biocommerce_cost = 5
+: c Cost_agroforestry = 5
+: c Cost_for_efforts_to_strengthen_policy_enforcement = 5
+: c Cost_of_harmonization = 5
+: c Ecological_production_cost = 5
+: c Engagement_cost = 5
+: c Insitution_reform = 0
+: c Insitution_reform_cost = 5
+: c "Multi-scale_policy_cost" = 5
+: c Environmental_degradation."Agro-forestry_policy" = 0
+: c Environmental_degradation.Incentives_for_the_agricultural_diversification = 0
+: c Institution_and_governance."Integrated_multi-scale_policy_approach" = 0
+: c Environmental_degradation.Subsidies_for_ecological_production = 0
+: c Local_community.Awareness_and_education_campaign = 0
+: c Institution_and_governance.Strengthen_policy_enforcement = 0
+: c Environmental_degradation.Harmonize_investment_plans = 0
+: c Institution_and_governance.Engagememt_initiatives = 0
+: c Environmental_degradation."Bio-commerce_policy" = 0
+: c Overall_strategy_cost = (Cost_agroforestry*Environmental_degradation."Agro-forestry_policy")+(Agricultural_diversification_cost*Environmental_degradation.Incentives_for_the_agricultural_diversification)+(Institution_and_governance."Integrated_multi-scale_policy_approach"*"Multi-scale_policy_cost")+(Ecological_production_cost*Environmental_degradation.Subsidies_for_ecological_production)+(Awareness_cost*Local_community.Awareness_and_education_campaign)+(Cost_for_efforts_to_strengthen_policy_enforcement*Institution_and_governance.Strengthen_policy_enforcement)+(Cost_of_harmonization*Environmental_degradation.Harmonize_investment_plans)+(Engagement_cost*Institution_and_governance.Engagememt_initiatives)+(Insitution_reform_cost*Insitution_reform)+(Environmental_degradation."Bio-commerce_policy"*Biocommerce_cost)
+: c Environmental_degradation."Cocoa_yield/ha" = 1000
+    UNITS: kg/ha
+: c Environmental_degradation.Cocoa_production = Cocoa_production_areas*"Cocoa_yield/ha"
+    UNITS: Kilograms
+: c Environmental_degradation.Unsaisfied_cocoa_demand = Cocoa_demand_Ucayali_region-Cocoa_production
+    UNITS: Kilograms
+: c Environmental_degradation.Agricultural_financing_availability = 0,8
+: f Environmental_degradation.Increasing_cocoa_produciton_areas = (Unsaisfied_cocoa_demand/"Cocoa_yield/ha")*Agricultural_financing_availability
+: c Environmental_degradation.Base_monoculture_rate = 0,6
+: c Environmental_degradation.Market_price_for_cocoa = 0,5
+: c Environmental_degradation.Farmers'_knowledge = 0,5
+: c Environmental_degradation.Proportion_of_new_cocoa_as_monoculture = Base_monoculture_rate*((Market_price_for_cocoa+Farmers'_knowledge)/3)
+: c Environmental_degradation.Policy_incentives_for_agroforestry = Institution_and_governance.Institutional_capacity*"Agro-forestry_policy"
+: c Environmental_degradation.Product's_traceability = 1
+: c Environmental_degradation.Consumers'_awareness = Product's_traceability
+: f Environmental_degradation.Monoculture_rate = (Increasing_cocoa_produciton_areas*-Proportion_of_new_cocoa_as_monoculture)*(Policy_incentives_for_agroforestry*Incentives_for_the_agricultural_diversification)*Consumers'_awareness
+: f Environmental_degradation.Traditional_production_rate = Increasing_cocoa_produciton_areas*(1-Proportion_of_new_cocoa_as_monoculture*"Bio-commerce_policy"*Harmonize_investment_plans)
+: c Environmental_degradation.Contamination_decrease = Sustainable_behaviour.Sustainable_behaviour_intention
+: c Environmental_degradation."Water_contaminant_load/kg_(heavy_metals)" = 0,00000185*Contamination_decrease
+: c Environmental_degradation."Water_contamination_load/_ha_of_mining" = 0,8
+: f Environmental_degradation.Contamination_increase_water = ("Water_contaminant_load/kg_(heavy_metals)"*Cocoa_production)+(Illegal_mining_areas*"Water_contamination_load/_ha_of_mining")
+: c Environmental_degradation."Contaminant_decay_rate/year_(water)" = 0,2
+: f Environmental_degradation."Contaminant_degradation_(water)" = Water_contamination*"Contaminant_decay_rate/year_(water)"
+: c Environmental_degradation."Soil_contaminant_load/kg_(heavy_metals)" = 0,0012*Contamination_decrease
+: c Environmental_degradation."Soil_contaminant_load/kg_(pesticides)" = 0,00164*Contamination_decrease
+: f Environmental_degradation.Contamination_increase_soil = ("Soil_contaminant_load/kg_(heavy_metals)"+"Soil_contaminant_load/kg_(pesticides)")*Cocoa_production
+: c Environmental_degradation."Contaminant_decay_rate/year" = 0,01
+: f Environmental_degradation.Contaminant_degradation_rate = Soil_contamination*"Contaminant_decay_rate/year"
+: c Environmental_degradation.Base_reforestation_projects_per_year = 27
+: c Environmental_degradation.Reforestation_committment = Institution_and_governance.Institutional_capacity
+: c Environmental_degradation.Reforestation_funding = 0,5
+: c Environmental_degradation."Reforestation_projects_(per_year)" = Base_reforestation_projects_per_year*((Reforestation_committment+Reforestation_funding)/2)
+: c Environmental_degradation."Reforestation_effectiveness_(ha)" = 100
+: f Environmental_degradation.Reforestation_rate = IF TIME <5 THEN 0 ELSE ("Reforestation_projects_(per_year)"*"Reforestation_effectiveness_(ha)")
+: c Environmental_degradation.Cocoa_deforestation_factor = Subsidies_for_ecological_production
+: c Environmental_degradation.Cocoa_monoculture_multiplier = Proportion_of_new_cocoa_as_monoculture
+: c Environmental_degradation.Deforestation_due_to_agricultural_expansion = Increasing_cocoa_produciton_areas*Cocoa_deforestation_factor*Cocoa_monoculture_multiplier
+: c Environmental_degradation.Rotation_cycle = 25
+: c Environmental_degradation."Average_annual_harvest_area_(legal)" = Legal_Wood_extraction_areas/Rotation_cycle
+    UNITS: hectares
+: c Environmental_degradation.Logging_management_quality = Subsidies_for_ecological_production*Harmonize_investment_plans
+: c Environmental_degradation.Base_deforestation_risk_legal = 0,3
+: c Environmental_degradation.Deforestation_risk_legal = (1-Logging_management_quality)*Base_deforestation_risk_legal
+: c Environmental_degradation.Legal_harvest_area_contributing_to_deforestation = "Average_annual_harvest_area_(legal)"*Deforestation_risk_legal
+: c Environmental_degradation.Demand_for_legal_timber_Ucayali = 800000
+    UNITS: m3/year
+    DOCUMENT: The total rate of demand for legal timber in the Ucayali region.
+: c Environmental_degradation."Timber_yield/ha_(legal)" = 20
+    UNITS: m3/hectare
+    DOCUMENT: The average yield of timber per hectare per month for legal extraction activities. This stock accumulates improvements over time.
+: c Environmental_degradation."Annual_timber_production_(legal)" = "Timber_yield/ha_(legal)"*"Average_annual_harvest_area_(legal)"
+    UNITS: m3/Month
+    DOCUMENT: The total rate of legal timber production, calculated by multiplying the legal wood extraction areas by the yield per hectare.
+: c Environmental_degradation."Timber_yield/ha_(illegal)" = 20
+: c Environmental_degradation."Annual_timber_production_(illegal)" = "Timber_yield/ha_(illegal)"*Illegal_wood_extraction_areas
+: c Environmental_degradation.Unsatisfied_timber_demand = Demand_for_legal_timber_Ucayali-("Annual_timber_production_(legal)"+"Annual_timber_production_(illegal)")
+    UNITS: m3/Month
+    DOCUMENT: The rate at which timber demand is not met by current legal and illegal production. This is the difference between the total demand rate and the sum of legal and illegal timber production rates.
+: c Environmental_degradation.Base_legal_enforcement = 0,1
+: c Environmental_degradation.Legal_enforcement = Base_legal_enforcement*Institution_and_governance.Institutional_capacity*Institution_and_governance.Strengthen_policy_enforcement
+    UNITS: dimensionless
+    DOCUMENT: The accumulated level of legal enforcement, which increases in response to higher rates of illegal wood extraction.
+: c Environmental_degradation.Timber_profitability_influence_multiplier = 0,3
+    UNITS: hectares/(m3/Month)
+    DOCUMENT: A factor determining how much illegal wood extraction area expands per unit of unsatisfied timber demand, considering the deterrent effect of legal enforcement.
+: c Environmental_degradation.Base_risk_attitude = 0,8
+: c Institution_and_governance.Base_monitoring = 0,2
+: c Institution_and_governance.Environmental_monitoring = Base_monitoring+(Institutional_capacity*0,5)
+: c Environmental_degradation.Risk_attitude_multiplier = Base_risk_attitude*(1-Institution_and_governance.Environmental_monitoring)
+: c Environmental_degradation.Forest_accessibility = 0,2
+: f Environmental_degradation."Increasing_wood_extraction_areas_(illegal)" = Unsatisfied_timber_demand * (1-Legal_enforcement) * Timber_profitability_influence_multiplier * Risk_attitude_multiplier * Forest_accessibility*(1-Local_community.Community_members_engaged_in_AIGAs)*(1-Subsidies_for_ecological_production)
+    UNITS: hectares/Years
+    DOCUMENT: The rate at which new areas are opened for illegal wood extraction, driven by unsatisfied timber demand and deterred by legal enforcement.
+: c Environmental_degradation.Deforestation_risk_illegal = 0,8
+: c Environmental_degradation.Illegal_harvest_area_contributing_to_deforestation = "Increasing_wood_extraction_areas_(illegal)"*Deforestation_risk_illegal
+: c Environmental_degradation.Local_knowledge_impact_on_deforestation = Local_community.Local_community_traditional_knowledge
+: c Environmental_degradation.Deforestation_from_timber_extraction = (Legal_harvest_area_contributing_to_deforestation+Illegal_harvest_area_contributing_to_deforestation)*(1-Local_knowledge_impact_on_deforestation)
+: c Environmental_degradation.Deforestation_from_illicit_crops = Area_for_illicit_crop
+: c Environmental_degradation."Deforestation_rate/_ha_of_mining" = 0,8
+: c Environmental_degradation.Climate_change_severity_index = TIME
+: c Environmental_degradation.Climate_sensitivity = 0,08
+: c Environmental_degradation."Human-induced_fire_index" = 0,06
+: c Environmental_degradation.Human_sensitivity_fire = 0,03
+: c Environmental_degradation.Forest_fire_index = (Climate_change_severity_index*Climate_sensitivity)+("Human-induced_fire_index"*Human_sensitivity_fire)
+: c Environmental_degradation.Forest_fire_loss_rate = Forested_areas*Forest_fire_index
+: c Environmental_degradation.Land_cleared_per_immigrant = 0,2
+: c Environmental_degradation.Deforestation_due_to_immigrants_settelements = Land_cleared_per_immigrant*Local_community.Migrant_population
+: c Environmental_degradation.Climate_change_deforestation_multiplier = Climate_change_severity_index
+: c Environmental_degradation.Base_protection = 0,25
+: c Environmental_degradation."%_of_Protected_areas" = Institution_and_governance.Strengthen_policy_enforcement*Base_protection
+: f Environmental_degradation.Deforestation_process = ((Deforestation_due_to_agricultural_expansion+Deforestation_from_timber_extraction+Deforestation_from_illicit_crops+("Deforestation_rate/_ha_of_mining"*Illegal_mining_areas)+Forest_fire_loss_rate+Deforestation_due_to_immigrants_settelements)*Climate_change_deforestation_multiplier)-(Forested_areas*"%_of_Protected_areas")
+: c Environmental_degradation.Base_illegal_mining_expansion = 500
+: c Environmental_degradation.Gold_expected_profitability = 0,5
+: c Environmental_degradation.Illegal_reduction_rate = Sustainable_behaviour.Sustainable_behaviour_intention
+: f Environmental_degradation.Illegal_mining_expansion_rate = Base_illegal_mining_expansion*((1-Institution_and_governance.Institutional_capacity)*Gold_expected_profitability*(1-Local_community.Community_members_engaged_in_AIGAs)*(1-Illegal_reduction_rate))
+: f Environmental_degradation.Illegal_mining_reduction = Illegal_mining_areas*0,05
+: c Environmental_degradation.Illicit_crops_profitabillity = 0,8
+: c Environmental_degradation.Governance_weakness_multiplier = Institution_and_governance.Institutional_capacity
+: f Environmental_degradation.Illicit_crops_expansion = Area_for_illicit_crop*(Illicit_crops_profitabillity*(1-Local_community.Community_members_engaged_in_AIGAs)*Forest_accessibility*Governance_weakness_multiplier)
+: c Environmental_degradation.Eradication_programs = 0,6
+: f Environmental_degradation.Illicit_crops_decreasing = Eradication_programs*(1-Governance_weakness_multiplier)*(1-Area_for_illicit_crop)
+: c Environmental_degradation.Rate_of_demand_increase = 0,03
+: f Environmental_degradation.Increasing_demand = Rate_of_demand_increase*Cocoa_demand_Ucayali_region
+: c Environmental_degradation.Waste_production_reduction_rate = Sustainable_behaviour.Sustainable_behaviour_intention
+: c Environmental_degradation.Fertilizer_packaging_per_kg_of_cocoa = 0,44*(1-Waste_production_reduction_rate)
+: c Environmental_degradation.Annual_fertilizers_packaging_generation = Cocoa_production*Fertilizer_packaging_per_kg_of_cocoa
+: c Environmental_degradation.Waste_generation_per_kg_of_cocoa = 0,75*(1-Waste_production_reduction_rate)
+: c Environmental_degradation.Annual_waste_generation_cocoa = Cocoa_production*Waste_generation_per_kg_of_cocoa
+: f Environmental_degradation.Increasing_waste_accumulation = Annual_fertilizers_packaging_generation+Annual_waste_generation_cocoa
+: c Environmental_degradation.Permitted_logging_area = 400000
+    UNITS: hectares
+    DOCUMENT: The maximum area permitted for logging by regulations. This stock can increase due to regulatory responses.
+: c Environmental_degradation.Potential_areas_from_demand = Unsatisfied_timber_demand/"Timber_yield/ha_(legal)"
+    UNITS: hectares
+    DOCUMENT: The potential area needed to meet the unsatisfied timber demand, calculated based on the unsatisfied demand rate and the legal timber yield per hectare.
+: c Environmental_degradation.Economic_viable_legal_areas = 50000
+    UNITS: hectares
+    DOCUMENT: The total area that is economically viable for legal timber extraction. This stock is depleted as areas are converted to legal extraction.
+: f Environmental_degradation."Increasing_wood_extraction_areas_(legal)" = MIN(Permitted_logging_area; MIN(Potential_areas_from_demand; Economic_viable_legal_areas))
+    UNITS: hectares/Years
+    DOCUMENT: The rate at which new areas are opened for legal wood extraction. It is limited by the smallest of the permitted logging area, the potential areas needed to meet demand, and the economically viable areas.
+: c Environmental_degradation.Waste_removal_factor = 0,1
+: f Environmental_degradation.Waste_removal_rate = Accumulated_waste*Waste_removal_factor
+: c Environmental_degradation.Cocoa_expected_profitability = Market_price_for_cocoa
+: c Environmental_degradation.Initial_forested_areas = 1000000
+: c Environmental_degradation.Deforestation_index = Forested_areas/Initial_forested_areas
+: c Environmental_degradation."Maximum_contamination_load_(water)" = 1000
+: c Environmental_degradation.Water_contamination_index = Water_contamination/"Maximum_contamination_load_(water)"
+: c Environmental_degradation."Maximum_contamination_load_(soil)" = 2000000
+: c Environmental_degradation.Soil_contamination_index = Soil_contamination/"Maximum_contamination_load_(soil)"
+: c Environmental_degradation.Environmental_contamination_index = Water_contamination_index*Soil_contamination_index
+: c Environmental_degradation.Max_waste_accumulation = 100000000
+: c Environmental_degradation.Waste_accumulation_index = MIN(1; MAX(0;  Accumulated_waste/Max_waste_accumulation))
+: c Institution_and_governance.International_pressure = 0,6
+: f Institution_and_governance.Commitment_strengthening = Institutional_capacity*International_pressure
+: c Institution_and_governance.Base_commitment_decay_rate = 0,5
+: c Institution_and_governance.Fighting_instability = .Insitution_reform
+: c Institution_and_governance.Political_instability = 1-Fighting_instability
+: f Institution_and_governance.Commitment_weakening = Base_commitment_decay_rate*Political_instability
+: c Institution_and_governance.Training_investements = Strengthen_policy_enforcement
+: c Institution_and_governance.Governance_reform = Strengthen_policy_enforcement
+: c Institution_and_governance.Resources_allocation = Strengthen_policy_enforcement
+: c Institution_and_governance.Base_trust = 0,2
+: c Institution_and_governance.Trust_rate = Local_community_engagement+Base_trust
+: c Institution_and_governance.Public_trust = Trust_rate
+: c Institution_and_governance.Environmental_awareness = Environmental_degradation.Deforestation_process
+: c Institution_and_governance.Awareness_impact_coefficient = 0,1
+: c Institution_and_governance.Institutional_awareness = Environmental_awareness*Awareness_impact_coefficient
+: f Institution_and_governance.Increasing_capacity = ((Training_investements+Governance_reform+Resources_allocation+Public_trust+Institutional_awareness+"Integrated_multi-scale_policy_approach")/6)*(1-Institutional_capacity)
+: c Institution_and_governance.Fighting_corruption = .Insitution_reform
+: c Institution_and_governance.Corruption_rate = 1-Fighting_corruption
+: c Institution_and_governance.Corruption_loss = Corruption_rate*Institutional_capacity
+: f Institution_and_governance.Decreasing_capacity = Corruption_loss*Political_instability
+: c Institution_and_governance.Awareness_impact = 0,3
+: c Institution_and_governance.Local_community_wellbeing = 0,3
+: c Institution_and_governance."Well-being_impact" = 0,3
+: c Institution_and_governance.Engagement_initiatives_effectiveness = Institutional_capacity
+: f Institution_and_governance.Increasing_engagement = ((Environmental_awareness*Awareness_impact)+(Local_community_wellbeing*"Well-being_impact")+(Engagememt_initiatives*Engagement_initiatives_effectiveness))*(1-Local_community_engagement)
+: c Institution_and_governance.Decreasing_rate = Institutional_capacity
+: f Institution_and_governance.Decreasing_engagement = Decreasing_rate*Local_community_engagement
+: c Institution_and_governance.Base_enforcement = 0,3
+: c Institution_and_governance.Institutional_capacity_barrier = 1-Institutional_capacity
+: c Institution_and_governance.Lack_of_engagement = 1-Local_community_engagement
+: c Institution_and_governance.Law_enforcement_effectiveness = Institutional_capacity*Base_enforcement*Strengthen_policy_enforcement
+: c Institution_and_governance.Monitoring_barrier = 1-Environmental_monitoring
+: c Institution_and_governance.Political_instability_barrier = (Political_instability+Corruption_rate+(1-Law_enforcement_effectiveness))/3
+: c Institution_and_governance.Trust_barrier = 1-Public_trust
+: c Local_community.AIGAs_funding = Environmental_degradation.Incentives_for_the_agricultural_diversification
+: c Local_community.AIGA_training_and_capacity_building = Environmental_degradation.Incentives_for_the_agricultural_diversification
+: f Local_community.AIGAs_increasing_rate = (AIGAs_funding*AIGA_training_and_capacity_building*Institution_and_governance.Local_community_engagement)*(1-Community_members_engaged_in_AIGAs)
+: c Local_community.AIGA_expected_profitability = IF Environmental_degradation.Incentives_for_the_agricultural_diversification=0 THEN 0,4 ELSE (0,4+Environmental_degradation.Incentives_for_the_agricultural_diversification)/2
+: c Local_community.Profitability_gap_multiplier = (Environmental_degradation.Timber_profitability_influence_multiplier+Environmental_degradation.Cocoa_expected_profitability)-AIGA_expected_profitability
+: f Local_community.AIGA_abandonment_rate = Community_members_engaged_in_AIGAs*Profitability_gap_multiplier
+: c Local_community.Environmental_education_effectiveness = 0,5
+: f Local_community.Awareness_increasing = (Awareness_and_education_campaign*Environmental_education_effectiveness)*(1-Environmental_awareness)
+: c Local_community.Decay_rate = 0,1
+: f Local_community.Awareness_decay = Environmental_awareness*Decay_rate
+: c Local_community.Normal_traditional_cocoa_contribution = 0,0002
+: c Local_community."Traditional_Cocoa_contribution/ha" = Normal_traditional_cocoa_contribution+Environmental_degradation.Subsidies_for_ecological_production
+: c Local_community."Traditional_Cocoa_production_contribution_to_well-being" = "Traditional_Cocoa_contribution/ha"*Environmental_degradation.Traditional_production_areas
+: c Local_community."Illegal_logging_well-being/ha" = 0,0005
+: c Local_community.Illegal_logging_contribution = Environmental_degradation.Illegal_wood_extraction_areas*"Illegal_logging_well-being/ha"
+: c Local_community."Legal_logging_well-being_benefit/ha" = 0,0002
+: c Local_community.Legal_logging_contribution = "Legal_logging_well-being_benefit/ha"*Environmental_degradation.Legal_Wood_extraction_areas
+: c Local_community.AIGAs_contribution = Community_members_engaged_in_AIGAs
+: c Local_community.Community_preservation_contribution = Local_community_traditional_knowledge
+: c Local_community."Monoculture_cocoa_contribution/ha" = 0,00001
+: c Local_community."Monoculture_cocoa_production_contribution_to_well-being" = Environmental_degradation.Proportion_of_new_cocoa_as_monoculture*"Monoculture_cocoa_contribution/ha"
+: c Local_community."Awareness_impact_on_well-being" = Environmental_awareness
+: c Local_community."Well-being_normalizer_factor" = 0,0000025
+: f Local_community."Increasing_well-being" = IF "Local_community_well-being"<1 THEN (("Traditional_Cocoa_production_contribution_to_well-being"+Illegal_logging_contribution+Legal_logging_contribution+AIGAs_contribution+Community_preservation_contribution+"Monoculture_cocoa_production_contribution_to_well-being"+"Awareness_impact_on_well-being")*"Well-being_normalizer_factor") ELSE 0
+: c Local_community.Social_conflicts_due_to_illegal_mining = Environmental_degradation.Illegal_mining_areas
+: c Local_community.Social_conflicts_due_to_illegal_wood = Environmental_degradation.Illegal_wood_extraction_areas
+: c Local_community.Social_conflict = Social_conflicts_due_to_illegal_mining*Social_conflicts_due_to_illegal_wood
+: c Local_community.Environmental_degradation_index = Environmental_degradation.Environmental_contamination_index*Environmental_degradation.Deforestation_index*Environmental_degradation.Waste_accumulation_index
+: f Local_community."Decreasing_well-being" = Social_conflict*Environmental_degradation_index
+: c Local_community.Base_migration_rate = 1000
+: c Local_community.Timber_production_attractiveness = Environmental_degradation."Annual_timber_production_(legal)"
+: c Local_community.Cocoa_production_attractiveness = Environmental_degradation.Cocoa_production
+: c Local_community.Ucayali_economic_attractiveness = Timber_production_attractiveness*Cocoa_production_attractiveness
+: c Local_community.Poverty_index = 0,7
+: c Local_community.Agricultural_productivity_in_the_Andes = Environmental_degradation.Climate_change_severity_index
+: c Local_community.Andes_pushing_elements = Poverty_index*Agricultural_productivity_in_the_Andes
+: f Local_community.In_migration_rate = (Base_migration_rate+Ucayali_economic_attractiveness+Andes_pushing_elements)
+: c Local_community.Agroforestry_training_programs = Environmental_degradation."Agro-forestry_policy"
+: c Local_community.Proportion_of_traditional_cocoa_production_areas = 1-Environmental_degradation.Proportion_of_new_cocoa_as_monoculture
+: c Local_community.Cultural_preservation_efforts = IF Environmental_degradation.Incentives_for_the_agricultural_diversification>0 THEN Environmental_degradation.Incentives_for_the_agricultural_diversification ELSE 0,1
+: c Local_community.Awareness_contribution = Environmental_awareness
+: f Local_community.Local_knowledge_generation = (Agroforestry_training_programs*Proportion_of_traditional_cocoa_production_areas*Cultural_preservation_efforts)*(1-Local_community_traditional_knowledge)*Awareness_contribution
+: c Local_community.Base_local_knowledge_decay_rate = 0,5
+: c Local_community.Monoculture_multplier = Environmental_degradation.Proportion_of_new_cocoa_as_monoculture
+: f Local_community.Local_knowledge_decay = Base_local_knowledge_decay_rate*Monoculture_multplier
+: c Local_community.Population_decay_rate = 0,05
+: f Local_community.Migration_decay = Migrant_population*Population_decay_rate
+: c Local_community.Environmental_awareness_barrier = 1-Environmental_awareness
+: c Local_community.Lack_of_alternative_economic_sources = 1-Community_members_engaged_in_AIGAs
+: c Local_community.Traditional_knowledge_barrier = 1-Local_community_traditional_knowledge
+: c Sustainable_behaviour.Illegal_logging_impact_on_attitude = Environmental_degradation.Illegal_wood_extraction_areas
+: c Sustainable_behaviour.Illegal_mining_impact_on_attitude = Environmental_degradation.Illegal_mining_areas
+: c Sustainable_behaviour.Resources_depletion = Local_community.Environmental_degradation_index
+: f Sustainable_behaviour.Increasing_attitude = Attitude*(Local_community.Social_conflict*Illegal_logging_impact_on_attitude*Illegal_mining_impact_on_attitude*Resources_depletion)
+: c Sustainable_behaviour.Conflicts_due_to_agricultural_expansion = Environmental_degradation.Increasing_cocoa_produciton_areas
+: f Sustainable_behaviour.SN_rate = (1-Subjective_norms)*Local_community.Social_conflict*Conflicts_due_to_agricultural_expansion
+: f Sustainable_behaviour.Intention_rate = Perceived_Behavioural_Control*Attitude*SN_rate*(1-Sustainable_behaviour_intention)
+    UNITS: Per Year
+: f Sustainable_behaviour.PBC_rate = (1-Perceived_Behavioural_Control)*Local_community.Environmental_awareness*Institution_and_governance.Local_community_engagement
+
+{ RUNTIME EQUATIONS }
+: s Environmental_degradation.Accumulated_waste(t) = Accumulated_waste(t - dt) + (Increasing_waste_accumulation - Waste_removal_rate) * dt {NON-NEGATIVE}
+: s Environmental_degradation.Area_for_illicit_crop(t) = Area_for_illicit_crop(t - dt) + (Illicit_crops_expansion - Illicit_crops_decreasing) * dt {NON-NEGATIVE}
+: s Environmental_degradation.Cocoa_demand_Ucayali_region(t) = Cocoa_demand_Ucayali_region(t - dt) + (Increasing_demand) * dt {NON-NEGATIVE}
+: s Environmental_degradation.Cocoa_production_areas(t) = Cocoa_production_areas(t - dt) + (Increasing_cocoa_produciton_areas) * dt {NON-NEGATIVE}
+: s Environmental_degradation.Forested_areas(t) = Forested_areas(t - dt) + (Reforestation_rate - Deforestation_process) * dt {NON-NEGATIVE}
+: s Environmental_degradation.Illegal_mining_areas(t) = Illegal_mining_areas(t - dt) + (Illegal_mining_expansion_rate - Illegal_mining_reduction) * dt {NON-NEGATIVE}
+: s Environmental_degradation.Illegal_wood_extraction_areas(t) = Illegal_wood_extraction_areas(t - dt) + ("Increasing_wood_extraction_areas_(illegal)") * dt {NON-NEGATIVE}
+    UNITS: hectares
+    DOCUMENT: The accumulated area that has been subjected to illegal wood extraction.
+: s Environmental_degradation.Legal_Wood_extraction_areas(t) = Legal_Wood_extraction_areas(t - dt) + ("Increasing_wood_extraction_areas_(legal)") * dt {NON-NEGATIVE}
+    UNITS: hectares
+    DOCUMENT: The accumulated area designated and used for legal wood extraction.
+: s Environmental_degradation.Monoculture_production_areas(t) = Monoculture_production_areas(t - dt) + (Monoculture_rate) * dt {NON-NEGATIVE}
+: s Environmental_degradation.Soil_contamination(t) = Soil_contamination(t - dt) + (Contamination_increase_soil - Contaminant_degradation_rate) * dt {NON-NEGATIVE}
+: s Environmental_degradation.Traditional_production_areas(t) = Traditional_production_areas(t - dt) + (Traditional_production_rate) * dt {NON-NEGATIVE}
+: s Environmental_degradation.Water_contamination(t) = Water_contamination(t - dt) + (Contamination_increase_water - "Contaminant_degradation_(water)") * dt {NON-NEGATIVE}
+: s Institution_and_governance.Institutional_capacity(t) = Institutional_capacity(t - dt) + (Increasing_capacity - Decreasing_capacity) * dt {NON-NEGATIVE}
+: s Institution_and_governance.International_commitment_pressure(t) = International_commitment_pressure(t - dt) + (Commitment_strengthening - Commitment_weakening) * dt {NON-NEGATIVE}
+: s Institution_and_governance.Local_community_engagement(t) = Local_community_engagement(t - dt) + (Increasing_engagement - Decreasing_engagement) * dt {NON-NEGATIVE}
+: s Local_community.Community_members_engaged_in_AIGAs(t) = Community_members_engaged_in_AIGAs(t - dt) + (AIGAs_increasing_rate - AIGA_abandonment_rate) * dt {NON-NEGATIVE}
+: s Local_community.Environmental_awareness(t) = Environmental_awareness(t - dt) + (Awareness_increasing - Awareness_decay) * dt {NON-NEGATIVE}
+: s Local_community.Local_community_traditional_knowledge(t) = Local_community_traditional_knowledge(t - dt) + (Local_knowledge_generation - Local_knowledge_decay) * dt {NON-NEGATIVE}
+: s Local_community."Local_community_well-being"(t) = "Local_community_well-being"(t - dt) + ("Increasing_well-being" - "Decreasing_well-being") * dt {NON-NEGATIVE}
+: s Local_community.Migrant_population(t) = Migrant_population(t - dt) + (In_migration_rate - Migration_decay) * dt {NON-NEGATIVE}
+: s Sustainable_behaviour.Attitude(t) = Attitude(t - dt) + (Increasing_attitude) * dt {NON-NEGATIVE}
+: s Sustainable_behaviour.Perceived_Behavioural_Control(t) = Perceived_Behavioural_Control(t - dt) + (PBC_rate) * dt {NON-NEGATIVE}
+: s Sustainable_behaviour.Subjective_norms(t) = Subjective_norms(t - dt) + (SN_rate) * dt {NON-NEGATIVE}
+: s Sustainable_behaviour.Sustainable_behaviour_intention(t) = Sustainable_behaviour_intention(t - dt) + (Intention_rate) * dt {NON-NEGATIVE}
+    UNITS: Dimensionless
+: c Overall_strategy_cost = (Cost_agroforestry*Environmental_degradation."Agro-forestry_policy")+(Agricultural_diversification_cost*Environmental_degradation.Incentives_for_the_agricultural_diversification)+(Institution_and_governance."Integrated_multi-scale_policy_approach"*"Multi-scale_policy_cost")+(Ecological_production_cost*Environmental_degradation.Subsidies_for_ecological_production)+(Awareness_cost*Local_community.Awareness_and_education_campaign)+(Cost_for_efforts_to_strengthen_policy_enforcement*Institution_and_governance.Strengthen_policy_enforcement)+(Cost_of_harmonization*Environmental_degradation.Harmonize_investment_plans)+(Engagement_cost*Institution_and_governance.Engagememt_initiatives)+(Insitution_reform_cost*Insitution_reform)+(Environmental_degradation."Bio-commerce_policy"*Biocommerce_cost)
+: c Environmental_degradation.Cocoa_production = Cocoa_production_areas*"Cocoa_yield/ha"
+    UNITS: Kilograms
+: c Environmental_degradation.Unsaisfied_cocoa_demand = Cocoa_demand_Ucayali_region-Cocoa_production
+    UNITS: Kilograms
+: f Environmental_degradation.Increasing_cocoa_produciton_areas = (Unsaisfied_cocoa_demand/"Cocoa_yield/ha")*Agricultural_financing_availability {UNIFLOW}
+: c Environmental_degradation.Proportion_of_new_cocoa_as_monoculture = Base_monoculture_rate*((Market_price_for_cocoa+Farmers'_knowledge)/3)
+: c Environmental_degradation.Policy_incentives_for_agroforestry = Institution_and_governance.Institutional_capacity*"Agro-forestry_policy"
+: c Environmental_degradation.Consumers'_awareness = GRAPH(Product's_traceability)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,562), (0,700, 0,605), (0,800, 0,595), (0,900, 0,595), (1,000, 0,590)
+: f Environmental_degradation.Monoculture_rate = (Increasing_cocoa_produciton_areas*-Proportion_of_new_cocoa_as_monoculture)*(Policy_incentives_for_agroforestry*Incentives_for_the_agricultural_diversification)*Consumers'_awareness
+: f Environmental_degradation.Traditional_production_rate = Increasing_cocoa_produciton_areas*(1-Proportion_of_new_cocoa_as_monoculture*"Bio-commerce_policy"*Harmonize_investment_plans)
+: c Environmental_degradation.Contamination_decrease = GRAPH(Sustainable_behaviour.Sustainable_behaviour_intention)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: c Environmental_degradation."Water_contaminant_load/kg_(heavy_metals)" = 0,00000185*Contamination_decrease
+: f Environmental_degradation.Contamination_increase_water = ("Water_contaminant_load/kg_(heavy_metals)"*Cocoa_production)+(Illegal_mining_areas*"Water_contamination_load/_ha_of_mining") {UNIFLOW}
+: f Environmental_degradation."Contaminant_degradation_(water)" = Water_contamination*"Contaminant_decay_rate/year_(water)" {UNIFLOW}
+: c Environmental_degradation."Soil_contaminant_load/kg_(heavy_metals)" = 0,0012*Contamination_decrease
+: c Environmental_degradation."Soil_contaminant_load/kg_(pesticides)" = 0,00164*Contamination_decrease
+: f Environmental_degradation.Contamination_increase_soil = ("Soil_contaminant_load/kg_(heavy_metals)"+"Soil_contaminant_load/kg_(pesticides)")*Cocoa_production {UNIFLOW}
+: f Environmental_degradation.Contaminant_degradation_rate = Soil_contamination*"Contaminant_decay_rate/year" {UNIFLOW}
+: c Environmental_degradation.Reforestation_committment = GRAPH(Institution_and_governance.Institutional_capacity)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: c Environmental_degradation."Reforestation_projects_(per_year)" = Base_reforestation_projects_per_year*((Reforestation_committment+Reforestation_funding)/2)
+: f Environmental_degradation.Reforestation_rate = IF TIME <5 THEN 0 ELSE ("Reforestation_projects_(per_year)"*"Reforestation_effectiveness_(ha)") {UNIFLOW}
+: c Environmental_degradation.Cocoa_deforestation_factor = GRAPH(Subsidies_for_ecological_production)
+Points: (0,000, 1,000), (0,100, 0,9874), (0,200, 0,9566), (0,300, 0,8835), (0,400, 0,7324), (0,500, 0,500), (0,600, 0,2676), (0,700, 0,1165), (0,800, 0,04341), (0,900, 0,01263), (1,000, 0,000)
+: c Environmental_degradation.Cocoa_monoculture_multiplier = GRAPH(Proportion_of_new_cocoa_as_monoculture)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: c Environmental_degradation.Deforestation_due_to_agricultural_expansion = Increasing_cocoa_produciton_areas*Cocoa_deforestation_factor*Cocoa_monoculture_multiplier
+: c Environmental_degradation."Average_annual_harvest_area_(legal)" = Legal_Wood_extraction_areas/Rotation_cycle
+    UNITS: hectares
+: c Environmental_degradation.Logging_management_quality = Subsidies_for_ecological_production*Harmonize_investment_plans
+: c Environmental_degradation.Deforestation_risk_legal = (1-Logging_management_quality)*Base_deforestation_risk_legal
+: c Environmental_degradation.Legal_harvest_area_contributing_to_deforestation = "Average_annual_harvest_area_(legal)"*Deforestation_risk_legal
+: c Environmental_degradation."Annual_timber_production_(legal)" = "Timber_yield/ha_(legal)"*"Average_annual_harvest_area_(legal)"
+    UNITS: m3/Month
+    DOCUMENT: The total rate of legal timber production, calculated by multiplying the legal wood extraction areas by the yield per hectare.
+: c Environmental_degradation."Annual_timber_production_(illegal)" = "Timber_yield/ha_(illegal)"*Illegal_wood_extraction_areas
+: c Environmental_degradation.Unsatisfied_timber_demand = Demand_for_legal_timber_Ucayali-("Annual_timber_production_(legal)"+"Annual_timber_production_(illegal)")
+    UNITS: m3/Month
+    DOCUMENT: The rate at which timber demand is not met by current legal and illegal production. This is the difference between the total demand rate and the sum of legal and illegal timber production rates.
+: c Environmental_degradation.Legal_enforcement = Base_legal_enforcement*Institution_and_governance.Institutional_capacity*Institution_and_governance.Strengthen_policy_enforcement
+    UNITS: dimensionless
+    DOCUMENT: The accumulated level of legal enforcement, which increases in response to higher rates of illegal wood extraction.
+: c Institution_and_governance.Environmental_monitoring = Base_monitoring+(Institutional_capacity*0,5)
+: c Environmental_degradation.Risk_attitude_multiplier = Base_risk_attitude*(1-Institution_and_governance.Environmental_monitoring)
+: f Environmental_degradation."Increasing_wood_extraction_areas_(illegal)" = Unsatisfied_timber_demand * (1-Legal_enforcement) * Timber_profitability_influence_multiplier * Risk_attitude_multiplier * Forest_accessibility*(1-Local_community.Community_members_engaged_in_AIGAs)*(1-Subsidies_for_ecological_production) {UNIFLOW}
+    UNITS: hectares/Years
+    DOCUMENT: The rate at which new areas are opened for illegal wood extraction, driven by unsatisfied timber demand and deterred by legal enforcement.
+: c Environmental_degradation.Illegal_harvest_area_contributing_to_deforestation = "Increasing_wood_extraction_areas_(illegal)"*Deforestation_risk_illegal
+: c Environmental_degradation.Local_knowledge_impact_on_deforestation = GRAPH(Local_community.Local_community_traditional_knowledge)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: c Environmental_degradation.Deforestation_from_timber_extraction = (Legal_harvest_area_contributing_to_deforestation+Illegal_harvest_area_contributing_to_deforestation)*(1-Local_knowledge_impact_on_deforestation)
+: c Environmental_degradation.Deforestation_from_illicit_crops = Area_for_illicit_crop
+: c Environmental_degradation.Climate_change_severity_index = GRAPH(TIME)
+Points: (1,00, 0,000), (2,58333333333, 0,00969), (4,16666666667, 0,02998), (5,75, 0,07251), (7,33333333333, 0,1566), (8,91666666667, 0,3018), (10,50, 0,352), (12,0833333333, 0,481), (13,6666666667, 0,505), (15,25, 0,552), (16,8333333333, 0,552), (18,4166666667, 0,586), (20,00, 0,576) {GF EXTRAPOLATED}
+: c Environmental_degradation.Forest_fire_index = (Climate_change_severity_index*Climate_sensitivity)+("Human-induced_fire_index"*Human_sensitivity_fire)
+: c Environmental_degradation.Forest_fire_loss_rate = Forested_areas*Forest_fire_index
+: c Environmental_degradation.Deforestation_due_to_immigrants_settelements = Land_cleared_per_immigrant*Local_community.Migrant_population
+: c Environmental_degradation.Climate_change_deforestation_multiplier = GRAPH(Climate_change_severity_index)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: c Environmental_degradation."%_of_Protected_areas" = Institution_and_governance.Strengthen_policy_enforcement*Base_protection
+: f Environmental_degradation.Deforestation_process = ((Deforestation_due_to_agricultural_expansion+Deforestation_from_timber_extraction+Deforestation_from_illicit_crops+("Deforestation_rate/_ha_of_mining"*Illegal_mining_areas)+Forest_fire_loss_rate+Deforestation_due_to_immigrants_settelements)*Climate_change_deforestation_multiplier)-(Forested_areas*"%_of_Protected_areas") {UNIFLOW}
+: c Environmental_degradation.Illegal_reduction_rate = GRAPH(Sustainable_behaviour.Sustainable_behaviour_intention)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: f Environmental_degradation.Illegal_mining_expansion_rate = Base_illegal_mining_expansion*((1-Institution_and_governance.Institutional_capacity)*Gold_expected_profitability*(1-Local_community.Community_members_engaged_in_AIGAs)*(1-Illegal_reduction_rate)) {UNIFLOW}
+: f Environmental_degradation.Illegal_mining_reduction = Illegal_mining_areas*0,05 {UNIFLOW}
+: c Environmental_degradation.Governance_weakness_multiplier = GRAPH(Institution_and_governance.Institutional_capacity)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: f Environmental_degradation.Illicit_crops_expansion = Area_for_illicit_crop*(Illicit_crops_profitabillity*(1-Local_community.Community_members_engaged_in_AIGAs)*Forest_accessibility*Governance_weakness_multiplier) {UNIFLOW}
+: f Environmental_degradation.Illicit_crops_decreasing = Eradication_programs*(1-Governance_weakness_multiplier)*(1-Area_for_illicit_crop) {UNIFLOW}
+: f Environmental_degradation.Increasing_demand = Rate_of_demand_increase*Cocoa_demand_Ucayali_region {UNIFLOW}
+: c Environmental_degradation.Waste_production_reduction_rate = GRAPH(Sustainable_behaviour.Sustainable_behaviour_intention)
+Points: (0,000, 0,000), (0,200, 0,3011), (0,400, 0,5735), (0,600, 0,820), (0,800, 1,043), (1,000, 1,245), (1,200, 1,428), (1,400, 1,593), (1,600, 1,742), (1,800, 1,878), (2,000, 2,000)
+: c Environmental_degradation.Fertilizer_packaging_per_kg_of_cocoa = 0,44*(1-Waste_production_reduction_rate)
+: c Environmental_degradation.Annual_fertilizers_packaging_generation = Cocoa_production*Fertilizer_packaging_per_kg_of_cocoa
+: c Environmental_degradation.Waste_generation_per_kg_of_cocoa = 0,75*(1-Waste_production_reduction_rate)
+: c Environmental_degradation.Annual_waste_generation_cocoa = Cocoa_production*Waste_generation_per_kg_of_cocoa
+: f Environmental_degradation.Increasing_waste_accumulation = Annual_fertilizers_packaging_generation+Annual_waste_generation_cocoa {UNIFLOW}
+: c Environmental_degradation.Potential_areas_from_demand = Unsatisfied_timber_demand/"Timber_yield/ha_(legal)"
+    UNITS: hectares
+    DOCUMENT: The potential area needed to meet the unsatisfied timber demand, calculated based on the unsatisfied demand rate and the legal timber yield per hectare.
+: f Environmental_degradation."Increasing_wood_extraction_areas_(legal)" = MIN(Permitted_logging_area; MIN(Potential_areas_from_demand; Economic_viable_legal_areas)) {UNIFLOW}
+    UNITS: hectares/Years
+    DOCUMENT: The rate at which new areas are opened for legal wood extraction. It is limited by the smallest of the permitted logging area, the potential areas needed to meet demand, and the economically viable areas.
+: f Environmental_degradation.Waste_removal_rate = Accumulated_waste*Waste_removal_factor {UNIFLOW}
+: c Environmental_degradation.Cocoa_expected_profitability = GRAPH(Market_price_for_cocoa)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: c Environmental_degradation.Deforestation_index = Forested_areas/Initial_forested_areas
+: c Environmental_degradation.Water_contamination_index = Water_contamination/"Maximum_contamination_load_(water)"
+: c Environmental_degradation.Soil_contamination_index = Soil_contamination/"Maximum_contamination_load_(soil)"
+: c Environmental_degradation.Environmental_contamination_index = Water_contamination_index*Soil_contamination_index
+: c Environmental_degradation.Waste_accumulation_index = MIN(1; MAX(0;  Accumulated_waste/Max_waste_accumulation))
+: f Institution_and_governance.Commitment_strengthening = Institutional_capacity*International_pressure {UNIFLOW}
+: c Institution_and_governance.Fighting_instability = .Insitution_reform
+: c Institution_and_governance.Political_instability = 1-Fighting_instability
+: f Institution_and_governance.Commitment_weakening = Base_commitment_decay_rate*Political_instability {UNIFLOW}
+: c Institution_and_governance.Training_investements = Strengthen_policy_enforcement
+: c Institution_and_governance.Governance_reform = Strengthen_policy_enforcement
+: c Institution_and_governance.Resources_allocation = Strengthen_policy_enforcement
+: c Institution_and_governance.Trust_rate = Local_community_engagement+Base_trust
+: c Institution_and_governance.Public_trust = Trust_rate
+: c Institution_and_governance.Environmental_awareness = GRAPH(Environmental_degradation.Deforestation_process)
+Points: (0, 0,000), (10000, 0,01263), (20000, 0,04341), (30000, 0,1165), (40000, 0,2676), (50000, 0,500), (60000, 0,7324), (70000, 0,8835), (80000, 0,9566), (90000, 0,9874), (100000, 1,000)
+: c Institution_and_governance.Institutional_awareness = Environmental_awareness*Awareness_impact_coefficient
+: f Institution_and_governance.Increasing_capacity = ((Training_investements+Governance_reform+Resources_allocation+Public_trust+Institutional_awareness+"Integrated_multi-scale_policy_approach")/6)*(1-Institutional_capacity) {UNIFLOW}
+: c Institution_and_governance.Fighting_corruption = .Insitution_reform
+: c Institution_and_governance.Corruption_rate = 1-Fighting_corruption
+: c Institution_and_governance.Corruption_loss = Corruption_rate*Institutional_capacity
+: f Institution_and_governance.Decreasing_capacity = Corruption_loss*Political_instability {UNIFLOW}
+: c Institution_and_governance.Engagement_initiatives_effectiveness = Institutional_capacity
+: f Institution_and_governance.Increasing_engagement = ((Environmental_awareness*Awareness_impact)+(Local_community_wellbeing*"Well-being_impact")+(Engagememt_initiatives*Engagement_initiatives_effectiveness))*(1-Local_community_engagement) {UNIFLOW}
+: c Institution_and_governance.Decreasing_rate = GRAPH(Institutional_capacity)
+Points: (0,000, 1,000), (0,100, 0,9874), (0,200, 0,9566), (0,300, 0,8835), (0,400, 0,7324), (0,500, 0,500), (0,600, 0,2676), (0,700, 0,1165), (0,800, 0,04341), (0,900, 0,01263), (1,000, 0,000)
+: f Institution_and_governance.Decreasing_engagement = Decreasing_rate*Local_community_engagement {UNIFLOW}
+: c Institution_and_governance.Institutional_capacity_barrier = 1-Institutional_capacity
+: c Institution_and_governance.Lack_of_engagement = 1-Local_community_engagement
+: c Institution_and_governance.Law_enforcement_effectiveness = Institutional_capacity*Base_enforcement*Strengthen_policy_enforcement
+: c Institution_and_governance.Monitoring_barrier = 1-Environmental_monitoring
+: c Institution_and_governance.Political_instability_barrier = (Political_instability+Corruption_rate+(1-Law_enforcement_effectiveness))/3
+: c Institution_and_governance.Trust_barrier = 1-Public_trust
+: c Local_community.AIGAs_funding = Environmental_degradation.Incentives_for_the_agricultural_diversification
+: c Local_community.AIGA_training_and_capacity_building = Environmental_degradation.Incentives_for_the_agricultural_diversification
+: f Local_community.AIGAs_increasing_rate = (AIGAs_funding*AIGA_training_and_capacity_building*Institution_and_governance.Local_community_engagement)*(1-Community_members_engaged_in_AIGAs) {UNIFLOW}
+: c Local_community.AIGA_expected_profitability = IF Environmental_degradation.Incentives_for_the_agricultural_diversification=0 THEN 0,4 ELSE (0,4+Environmental_degradation.Incentives_for_the_agricultural_diversification)/2
+: c Local_community.Profitability_gap_multiplier = (Environmental_degradation.Timber_profitability_influence_multiplier+Environmental_degradation.Cocoa_expected_profitability)-AIGA_expected_profitability
+: f Local_community.AIGA_abandonment_rate = Community_members_engaged_in_AIGAs*Profitability_gap_multiplier {UNIFLOW}
+: f Local_community.Awareness_increasing = (Awareness_and_education_campaign*Environmental_education_effectiveness)*(1-Environmental_awareness) {UNIFLOW}
+: f Local_community.Awareness_decay = Environmental_awareness*Decay_rate {UNIFLOW}
+: c Local_community."Traditional_Cocoa_contribution/ha" = Normal_traditional_cocoa_contribution+Environmental_degradation.Subsidies_for_ecological_production
+: c Local_community."Traditional_Cocoa_production_contribution_to_well-being" = "Traditional_Cocoa_contribution/ha"*Environmental_degradation.Traditional_production_areas
+: c Local_community.Illegal_logging_contribution = Environmental_degradation.Illegal_wood_extraction_areas*"Illegal_logging_well-being/ha"
+: c Local_community.Legal_logging_contribution = "Legal_logging_well-being_benefit/ha"*Environmental_degradation.Legal_Wood_extraction_areas
+: c Local_community.AIGAs_contribution = GRAPH(Community_members_engaged_in_AIGAs)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: c Local_community.Community_preservation_contribution = GRAPH(Local_community_traditional_knowledge)
+Points: (0,000, 0,000), (0,200, 0,200), (0,400, 0,400), (0,600, 0,600), (0,800, 0,800), (1,000, 1,000), (1,200, 1,200), (1,400, 1,400), (1,600, 1,600), (1,800, 1,800), (2,000, 2,000)
+: c Local_community."Monoculture_cocoa_production_contribution_to_well-being" = Environmental_degradation.Proportion_of_new_cocoa_as_monoculture*"Monoculture_cocoa_contribution/ha"
+: c Local_community."Awareness_impact_on_well-being" = GRAPH(Environmental_awareness)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: f Local_community."Increasing_well-being" = IF "Local_community_well-being"<1 THEN (("Traditional_Cocoa_production_contribution_to_well-being"+Illegal_logging_contribution+Legal_logging_contribution+AIGAs_contribution+Community_preservation_contribution+"Monoculture_cocoa_production_contribution_to_well-being"+"Awareness_impact_on_well-being")*"Well-being_normalizer_factor") ELSE 0 {UNIFLOW}
+: c Local_community.Social_conflicts_due_to_illegal_mining = GRAPH(Environmental_degradation.Illegal_mining_areas)
+Points: (0, 0,000), (200, 0,1505), (400, 0,2868), (600, 0,410), (800, 0,5215), (1000, 0,6225), (1200, 0,7138), (1400, 0,7964), (1600, 0,8711), (1800, 0,9388), (2000, 1,000)
+: c Local_community.Social_conflicts_due_to_illegal_wood = GRAPH(Environmental_degradation.Illegal_wood_extraction_areas)
+Points: (0, 0,000), (5000, 0,3011), (10000, 0,5735), (15000, 0,820), (20000, 1,043), (25000, 1,245), (30000, 1,428), (35000, 1,593), (40000, 1,742), (45000, 1,878), (50000, 2,000)
+: c Local_community.Social_conflict = Social_conflicts_due_to_illegal_mining*Social_conflicts_due_to_illegal_wood
+: c Local_community.Environmental_degradation_index = Environmental_degradation.Environmental_contamination_index*Environmental_degradation.Deforestation_index*Environmental_degradation.Waste_accumulation_index
+: f Local_community."Decreasing_well-being" = Social_conflict*Environmental_degradation_index {UNIFLOW}
+: c Local_community.Timber_production_attractiveness = GRAPH(Environmental_degradation."Annual_timber_production_(legal)")
+Points: (0, 0,000), (40000, 0,01263), (80000, 0,04341), (120000, 0,1165), (160000, 0,2676), (200000, 0,500), (240000, 0,7324), (280000, 0,8835), (320000, 0,9566), (360000, 0,9874), (400000, 1,000)
+: c Local_community.Cocoa_production_attractiveness = GRAPH(Environmental_degradation.Cocoa_production)
+Points: (0, 0,000), (4500000, 0,01263), (9000000, 0,04341), (13500000, 0,1165), (18000000, 0,2676), (22500000, 0,500), (27000000, 0,7324), (31500000, 0,8835), (36000000, 0,9566), (40500000, 0,9874), (45000000, 1,000)
+: c Local_community.Ucayali_economic_attractiveness = Timber_production_attractiveness*Cocoa_production_attractiveness
+: c Local_community.Agricultural_productivity_in_the_Andes = GRAPH(Environmental_degradation.Climate_change_severity_index)
+Points: (0,000, 1,000), (0,100, 0,8495), (0,200, 0,7132), (0,300, 0,590), (0,400, 0,4785), (0,500, 0,3775), (0,600, 0,2862), (0,700, 0,2036), (0,800, 0,1289), (0,900, 0,06121), (1,000, 0,000)
+: c Local_community.Andes_pushing_elements = Poverty_index*Agricultural_productivity_in_the_Andes
+: f Local_community.In_migration_rate = (Base_migration_rate+Ucayali_economic_attractiveness+Andes_pushing_elements) {UNIFLOW}
+: c Local_community.Agroforestry_training_programs = Environmental_degradation."Agro-forestry_policy"
+: c Local_community.Proportion_of_traditional_cocoa_production_areas = 1-Environmental_degradation.Proportion_of_new_cocoa_as_monoculture
+: c Local_community.Cultural_preservation_efforts = IF Environmental_degradation.Incentives_for_the_agricultural_diversification>0 THEN Environmental_degradation.Incentives_for_the_agricultural_diversification ELSE 0,1
+: c Local_community.Awareness_contribution = GRAPH(Environmental_awareness)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: f Local_community.Local_knowledge_generation = (Agroforestry_training_programs*Proportion_of_traditional_cocoa_production_areas*Cultural_preservation_efforts)*(1-Local_community_traditional_knowledge)*Awareness_contribution {UNIFLOW}
+: c Local_community.Monoculture_multplier = GRAPH(Environmental_degradation.Proportion_of_new_cocoa_as_monoculture)
+Points: (0,000, 0,000), (0,100, 0,06316), (0,200, 0,2171), (0,300, 0,5826), (0,400, 1,338), (0,500, 2,500), (0,600, 3,662), (0,700, 4,417), (0,800, 4,783), (0,900, 4,937), (1,000, 5,000)
+: f Local_community.Local_knowledge_decay = Base_local_knowledge_decay_rate*Monoculture_multplier {UNIFLOW}
+: f Local_community.Migration_decay = Migrant_population*Population_decay_rate {UNIFLOW}
+: c Local_community.Environmental_awareness_barrier = 1-Environmental_awareness
+: c Local_community.Lack_of_alternative_economic_sources = 1-Community_members_engaged_in_AIGAs
+: c Local_community.Traditional_knowledge_barrier = 1-Local_community_traditional_knowledge
+: c Sustainable_behaviour.Illegal_logging_impact_on_attitude = GRAPH(Environmental_degradation.Illegal_wood_extraction_areas)
+Points: (0, 1,000), (2500, 0,8495), (5000, 0,7132), (7500, 0,590), (10000, 0,4785), (12500, 0,3775), (15000, 0,2862), (17500, 0,2036), (20000, 0,1289), (22500, 0,06121), (25000, 0,000)
+: c Sustainable_behaviour.Illegal_mining_impact_on_attitude = GRAPH(Environmental_degradation.Illegal_mining_areas)
+Points: (0,0, 0,000), (50,0, 0,1505), (100,0, 0,2868), (150,0, 0,410), (200,0, 0,5215), (250,0, 0,6225), (300,0, 0,7138), (350,0, 0,7964), (400,0, 0,8711), (450,0, 0,9388), (500,0, 1,000)
+: c Sustainable_behaviour.Resources_depletion = GRAPH(Local_community.Environmental_degradation_index)
+Points: (0,000, 0,000), (0,100, 0,100), (0,200, 0,200), (0,300, 0,300), (0,400, 0,400), (0,500, 0,500), (0,600, 0,600), (0,700, 0,700), (0,800, 0,800), (0,900, 0,900), (1,000, 1,000)
+: f Sustainable_behaviour.Increasing_attitude = Attitude*(Local_community.Social_conflict*Illegal_logging_impact_on_attitude*Illegal_mining_impact_on_attitude*Resources_depletion) {UNIFLOW}
+: c Sustainable_behaviour.Conflicts_due_to_agricultural_expansion = GRAPH(Environmental_degradation.Increasing_cocoa_produciton_areas)
+Points: (0, 0,000), (100, 0,01263), (200, 0,04341), (300, 0,1165), (400, 0,2676), (500, 0,500), (600, 0,7324), (700, 0,8835), (800, 0,9566), (900, 0,9874), (1000, 1,000)
+: f Sustainable_behaviour.SN_rate = (1-Subjective_norms)*Local_community.Social_conflict*Conflicts_due_to_agricultural_expansion {UNIFLOW}
+: f Sustainable_behaviour.Intention_rate = Perceived_Behavioural_Control*Attitude*SN_rate*(1-Sustainable_behaviour_intention) {UNIFLOW}
+    UNITS: Per Year
+: f Sustainable_behaviour.PBC_rate = (1-Perceived_Behavioural_Control)*Local_community.Environmental_awareness*Institution_and_governance.Local_community_engagement {UNIFLOW}
+
+{ TIME SPECS }
+STARTTIME=1
+STOPTIME=20
+DT=0,25
+INTEGRATION=EULER
+RUNMODE=NORMAL
+PAUSEINTERVAL=0
