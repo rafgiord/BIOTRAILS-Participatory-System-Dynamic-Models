@@ -1,0 +1,238 @@
+{ VERSION 4.0 }
+
+{ The model has 142 (142) variables (array expansion in parens).
+  In root model and 4 additional modules with 0 sectors.
+  Stocks: 9 (9) Flows: 15 (15) Converters: 118 (118)
+  Constants: 51 (51) Equations: 82 (82) Graphicals: 19 (19)  }
+
+{ INITIALIZATION EQUATIONS }
+: s Biodiversity_degradation.Marine_plastic_pollution = 0,1
+: s Biodiversity_degradation.Water_quality_index = 0,6
+: s Fish_farming.Farmed_fish = 0
+: s Fish_farming.Juvenile_fish_population = 00
+: s Institutions_and_policy.Institutional_capacity = 0,5
+    UNITS: Dimensionless
+: s Sustainable_behaviour.Attitude = 0,1
+: s Sustainable_behaviour.Perceived_Behavioural_Control = 0,1
+: s Sustainable_behaviour.Subjective_norms = 0,1
+: s Sustainable_behaviour.Sustainable_behaviour_intention = 0,1
+    UNITS: Dimensionless
+: c Circular_economy = 0
+: c Circular_economy_cost = 5
+: c Domestic_market_cost = 5
+: c Education_cost = 5
+: c Fish_farming_domestic_policy = 0
+: c Funding_cost = 5
+: c Funding_opportunities = 0
+: c Labelling_cost = 5
+: c Labelling_policy = 0
+: c "Locally-based_policy_cost" = 5
+: c Sustainability_education = 0
+: c Institutions_and_policy.Strengthen_regulation = 0,1
+: c Strengthen_cost = 5
+: c Biodiversity_degradation.Sustainable_fish_feed = 0
+: c Sustainable_feed_cost = 5
+: c Institutions_and_policy.Participatory_planning = 0,1
+: c Participatory_cost = 5
+: c Institutions_and_policy.Locally_base_policies = 0,1
+: c Overall_strategy_cost = (Sustainability_education*Education_cost)+(Labelling_policy*Labelling_cost)+(Fish_farming_domestic_policy*Domestic_market_cost)+(Circular_economy*Circular_economy_cost)+(Institutions_and_policy.Strengthen_regulation*Strengthen_cost)+(Biodiversity_degradation.Sustainable_fish_feed*Sustainable_feed_cost)+(Institutions_and_policy.Participatory_planning*Participatory_cost)+(Institutions_and_policy.Locally_base_policies*"Locally-based_policy_cost")+(Funding_opportunities*Funding_cost)
+: c Biodiversity_degradation.Average_weight = 500
+: c Biodiversity_degradation.Farmed_fish_biomass = Fish_farming.Farmed_fish*Average_weight/1000
+: c Institutions_and_policy.Regulation_effectiveness = Institutional_capacity*Strengthen_regulation*Participatory_planning*Locally_base_policies
+    UNITS: Dimensionless
+: c Biodiversity_degradation.Packaging_intensity_per_tons_of_fish = Institutions_and_policy.Regulation_effectiveness
+: c Biodiversity_degradation.Waste_recycling = Institutions_and_policy.Regulation_effectiveness*Sustainable_behaviour.Sustainable_behaviour_intention+.Labelling_policy+.Circular_economy
+    UNITS: Dimensionless
+: c Biodiversity_degradation.Packaging_waste_load_per_year = Farmed_fish_biomass*Packaging_intensity_per_tons_of_fish/Waste_recycling
+: c Biodiversity_degradation.Portion_of_plastic_reaching_marine_environment = 0,3
+: f Biodiversity_degradation.Plastic_input_rate = Packaging_waste_load_per_year*Portion_of_plastic_reaching_marine_environment
+: c Biodiversity_degradation.Natural_degradation_rate = 0,0001
+: c Biodiversity_degradation.Base_human_cleaning = 50
+: c Biodiversity_degradation.Human_cleaning = Base_human_cleaning*(Institutions_and_policy.Regulation_effectiveness*Sustainable_behaviour.Sustainable_behaviour_intention)
+    UNITS: Dimensionless
+: f Biodiversity_degradation.Plastic_removal_rate = Marine_plastic_pollution*Natural_degradation_rate+Human_cleaning
+: c Biodiversity_degradation.Natural_recovery_capacity = 0,6
+: f Biodiversity_degradation.Water_quality_improvements = Natural_recovery_capacity*(1-Water_quality_index)
+: c Biodiversity_degradation.Daily_feeding_rate_per_biomass = 0,01
+: c Biodiversity_degradation.Feed_input_rate = Farmed_fish_biomass*Daily_feeding_rate_per_biomass*365
+: c Biodiversity_degradation.Proportion_of_uneaten_food = 0,10
+: c Biodiversity_degradation.Fecal_production_rate_per_biomass = 0,4
+: c Biodiversity_degradation.Organic_matter_waste_load_rate = (Feed_input_rate*Proportion_of_uneaten_food)+(Farmed_fish_biomass*Fecal_production_rate_per_biomass)*(1-Waste_recycling)*(1-Sustainable_fish_feed)
+: c Biodiversity_degradation.Organic_impact_factor = 0,0008
+: c Biodiversity_degradation.Water_quality_index_degradation_multiplier = Water_quality_index*0,5
+: c Biodiversity_degradation.Degradation_from_organic_load = Organic_matter_waste_load_rate*Organic_impact_factor*Water_quality_index_degradation_multiplier
+: c Biodiversity_degradation.Feed_nitrogen_content = 0,08
+: c Biodiversity_degradation.Uneaten_feed_nitrogen_load = Feed_input_rate*Proportion_of_uneaten_food*Feed_nitrogen_content
+: c Biodiversity_degradation.Ammonia_excretion_per_biomass = 0,25
+: c Biodiversity_degradation.Ammonia_from_fish = Farmed_fish_biomass*Ammonia_excretion_per_biomass/1000
+: c Biodiversity_degradation.Total_nitrogen_waste_load = Uneaten_feed_nitrogen_load+Ammonia_from_fish
+: c Biodiversity_degradation.Nutrient_impact_factor = 0,00004
+: c Biodiversity_degradation.Degradation_from_nutrient_load = Total_nitrogen_waste_load*Nutrient_impact_factor*Water_quality_index_degradation_multiplier
+: c Biodiversity_degradation.Base_annual_antibiotic_load = 100
+: c Biodiversity_degradation.Antibiotic_annual_load = Base_annual_antibiotic_load*(Institutions_and_policy.Regulation_effectiveness+Sustainable_behaviour.Sustainable_behaviour_intention)
+    UNITS: Dimensionless
+: c Biodiversity_degradation.Antibiotic_impact_factor = 0,0001
+: c Biodiversity_degradation.Degradation_from_chemical_load = Antibiotic_annual_load*Antibiotic_impact_factor*Water_quality_index_degradation_multiplier
+: c Biodiversity_degradation.Packaging_impact_factor_per_tons_of_waste = 0,00001
+: c Biodiversity_degradation.Degradation_from_plastic_stock = Marine_plastic_pollution*Packaging_impact_factor_per_tons_of_waste*Water_quality_index_degradation_multiplier
+: c Biodiversity_degradation."Sea-surface_temperature" = TIME
+: c Biodiversity_degradation.Temperature_anomaly = "Sea-surface_temperature"
+: c Biodiversity_degradation.Degradation_due_to_temperature = Temperature_anomaly
+: c Biodiversity_degradation.Sea_surface_salinity = TIME
+: c Biodiversity_degradation.Salinity_anomaly = Sea_surface_salinity
+: c Biodiversity_degradation.Degradation_due_to_salinity = Salinity_anomaly
+: f Biodiversity_degradation.Water_quality_degradation = Degradation_from_organic_load*Degradation_from_nutrient_load*Degradation_from_chemical_load*Degradation_from_plastic_stock*Degradation_due_to_temperature*Degradation_due_to_salinity
+: c Fish_farming.Broadstock_health_factor = 0,95
+: c Fish_farming.Hatchery_capacity = 330000
+: c Fish_farming.Hatchery_survival_rate = 0,8
+: c Fish_farming.Base_demand = 0,8
+: c Fish_farming.Fish_demand_status = Base_demand+.Fish_farming_domestic_policy
+: c Fish_farming.Labelling_impact_on_economic = 0,7
+: c Fish_farming.Economic_viability_factor = Fish_demand_status+(.Labelling_policy*Labelling_impact_on_economic)
+: f Fish_farming.Hatchery_produciton_rate = Broadstock_health_factor*Hatchery_capacity*Hatchery_survival_rate*Economic_viability_factor
+: c Fish_farming.Base_juvenile_mortality_rate = 0,1
+: c Fish_farming.Base_disease_mortality = 0,01
+: c Fish_farming.Antibiotic_treatment_level = Biodiversity_degradation.Antibiotic_annual_load
+: c Fish_farming."Diseases_induced_mortality_factor_(juvenile)" = Base_disease_mortality*(1-Antibiotic_treatment_level)
+: c Fish_farming."Water_quality_impact_(juvenile)" = 0,8
+: f Fish_farming.Juvenile_mortality = Juvenile_fish_population*(Base_juvenile_mortality_rate+"Diseases_induced_mortality_factor_(juvenile)"+(Biodiversity_degradation.Water_quality_index*"Water_quality_impact_(juvenile)"))
+: c Fish_farming."Stocking_proportion/year" = 0,2
+: f Fish_farming.Stocking_rate = Juvenile_fish_population*"Stocking_proportion/year"
+: c Fish_farming.Base_mortality_rate = 0,01
+: c Fish_farming."Base_disease_mortality(fish)" = 0,01
+: c Fish_farming."Diseases_induced_mortality_factor_(fish)" = "Base_disease_mortality(fish)"*(1-Antibiotic_treatment_level)
+: c Fish_farming."Water_quality_impact(fish)" = 0,5
+: f Fish_farming.Mortality_rate = Farmed_fish*(Base_mortality_rate+"Diseases_induced_mortality_factor_(fish)"+("Water_quality_impact(fish)"*Biodiversity_degradation.Water_quality_index))
+: c Fish_farming."Harvest_rate/year" = 0,5
+: f Fish_farming.Harvest_rate = Farmed_fish*"Harvest_rate/year"
+: c Institutions_and_policy.Base_capacity = 0,1
+: c Institutions_and_policy.Governance_funding_for_aquaculture = 0,1*.Funding_opportunities
+: c Institutions_and_policy.Aquaculture_economic_viability = Fish_farming.Farmed_fish
+: c Institutions_and_policy.Economic_impact_on_governance = 0,2
+: c Institutions_and_policy.Water_quality_impact = 0,01
+: f Institutions_and_policy.Increasing_capacity = ((Base_capacity*Governance_funding_for_aquaculture)+(Aquaculture_economic_viability*Economic_impact_on_governance)+(Biodiversity_degradation.Water_quality_index*Water_quality_impact))*(1-Institutional_capacity)
+    UNITS: Per Year
+: c Institutions_and_policy.Base_decay = 0,3
+: c Institutions_and_policy.Decay_due_to_water_quality = Biodiversity_degradation.Water_quality_index
+: c Institutions_and_policy.Capacity_degradation_rate = Base_decay*Decay_due_to_water_quality
+: f Institutions_and_policy.Reducing_capacity = Institutional_capacity*Capacity_degradation_rate
+    UNITS: Per Year
+: c Institutions_and_policy.Environmental_monitoring = Institutional_capacity
+: c Institutions_and_policy.Incentives_for_sustainable_practices = Institutional_capacity
+: c Institutions_and_policy.Infrastructure_development = Institutional_capacity
+: c Institutions_and_policy.Research_and_innovation_support = Institutional_capacity
+: c Institutions_and_policy.Training_and_capacity_building = Institutional_capacity
+    UNITS: Dimensionless
+: c Sustainable_behaviour.Impact_on_attitude = 0,6*Institutions_and_policy.Institutional_capacity
+: c Sustainable_behaviour.Labelling_impact_on_attitude = 0,6*Institutions_and_policy.Institutional_capacity*Institutions_and_policy.Environmental_monitoring
+: c Sustainable_behaviour.Awareness = 0,1+.Sustainability_education
+: f Sustainable_behaviour.Increasing_attitude = (((0,8*Institutions_and_policy.Infrastructure_development)+(0,4*Biodiversity_degradation.Temperature_anomaly))+(Impact_on_attitude*+(.Labelling_policy*Labelling_impact_on_attitude))*Awareness)*(1-Attitude)
+: c Sustainable_behaviour.Water_quality_impact = 0,1
+: f Sustainable_behaviour.SN_rate = (Water_quality_impact*Biodiversity_degradation.Water_quality_index)+.Sustainability_education
+: f Sustainable_behaviour.Intention_rate = Perceived_Behavioural_Control*Attitude*SN_rate*(1-Sustainable_behaviour_intention)
+    UNITS: Per Year
+: f Sustainable_behaviour.PBC_rate = (1-Perceived_Behavioural_Control)*Biodiversity_degradation.Waste_recycling*Institutions_and_policy.Training_and_capacity_building*.Funding_opportunities
+
+{ RUNTIME EQUATIONS }
+: s Biodiversity_degradation.Marine_plastic_pollution(t) = Marine_plastic_pollution(t - dt) + (Plastic_input_rate - Plastic_removal_rate) * dt {NON-NEGATIVE}
+: s Biodiversity_degradation.Water_quality_index(t) = Water_quality_index(t - dt) + (Water_quality_improvements - Water_quality_degradation) * dt {NON-NEGATIVE}
+: s Fish_farming.Farmed_fish(t) = Farmed_fish(t - dt) + (Stocking_rate - Mortality_rate - Harvest_rate) * dt {NON-NEGATIVE}
+: s Fish_farming.Juvenile_fish_population(t) = Juvenile_fish_population(t - dt) + (Hatchery_produciton_rate - Juvenile_mortality - Stocking_rate) * dt {NON-NEGATIVE}
+: s Institutions_and_policy.Institutional_capacity(t) = Institutional_capacity(t - dt) + (Increasing_capacity - Reducing_capacity) * dt {NON-NEGATIVE}
+    UNITS: Dimensionless
+: s Sustainable_behaviour.Attitude(t) = Attitude(t - dt) + (Increasing_attitude) * dt {NON-NEGATIVE}
+: s Sustainable_behaviour.Perceived_Behavioural_Control(t) = Perceived_Behavioural_Control(t - dt) + (PBC_rate) * dt {NON-NEGATIVE}
+: s Sustainable_behaviour.Subjective_norms(t) = Subjective_norms(t - dt) + (SN_rate) * dt {NON-NEGATIVE}
+: s Sustainable_behaviour.Sustainable_behaviour_intention(t) = Sustainable_behaviour_intention(t - dt) + (Intention_rate) * dt {NON-NEGATIVE}
+    UNITS: Dimensionless
+: c Overall_strategy_cost = (Sustainability_education*Education_cost)+(Labelling_policy*Labelling_cost)+(Fish_farming_domestic_policy*Domestic_market_cost)+(Circular_economy*Circular_economy_cost)+(Institutions_and_policy.Strengthen_regulation*Strengthen_cost)+(Biodiversity_degradation.Sustainable_fish_feed*Sustainable_feed_cost)+(Institutions_and_policy.Participatory_planning*Participatory_cost)+(Institutions_and_policy.Locally_base_policies*"Locally-based_policy_cost")+(Funding_opportunities*Funding_cost)
+: c Biodiversity_degradation.Farmed_fish_biomass = Fish_farming.Farmed_fish*Average_weight/1000
+: c Institutions_and_policy.Regulation_effectiveness = Institutional_capacity*Strengthen_regulation*Participatory_planning*Locally_base_policies
+    UNITS: Dimensionless
+: c Biodiversity_degradation.Packaging_intensity_per_tons_of_fish = GRAPH(Institutions_and_policy.Regulation_effectiveness)
+Points: (0,000, 50,00), (0,100, 49,37), (0,200, 47,83), (0,300, 44,17), (0,400, 36,62), (0,500, 25,00), (0,600, 24,05), (0,700, 25,00), (0,800, 23,33), (0,900, 24,05), (1,000, 25,00)
+: c Biodiversity_degradation.Waste_recycling = Institutions_and_policy.Regulation_effectiveness*Sustainable_behaviour.Sustainable_behaviour_intention+.Labelling_policy+.Circular_economy
+    UNITS: Dimensionless
+: c Biodiversity_degradation.Packaging_waste_load_per_year = Farmed_fish_biomass*Packaging_intensity_per_tons_of_fish/Waste_recycling
+: f Biodiversity_degradation.Plastic_input_rate = Packaging_waste_load_per_year*Portion_of_plastic_reaching_marine_environment {UNIFLOW}
+: c Biodiversity_degradation.Human_cleaning = Base_human_cleaning*(Institutions_and_policy.Regulation_effectiveness*Sustainable_behaviour.Sustainable_behaviour_intention)
+    UNITS: Dimensionless
+: f Biodiversity_degradation.Plastic_removal_rate = Marine_plastic_pollution*Natural_degradation_rate+Human_cleaning {UNIFLOW}
+: f Biodiversity_degradation.Water_quality_improvements = Natural_recovery_capacity*(1-Water_quality_index) {UNIFLOW}
+: c Biodiversity_degradation.Feed_input_rate = Farmed_fish_biomass*Daily_feeding_rate_per_biomass*365
+: c Biodiversity_degradation.Organic_matter_waste_load_rate = (Feed_input_rate*Proportion_of_uneaten_food)+(Farmed_fish_biomass*Fecal_production_rate_per_biomass)*(1-Waste_recycling)*(1-Sustainable_fish_feed)
+: c Biodiversity_degradation.Water_quality_index_degradation_multiplier = Water_quality_index*0,5
+: c Biodiversity_degradation.Degradation_from_organic_load = Organic_matter_waste_load_rate*Organic_impact_factor*Water_quality_index_degradation_multiplier
+: c Biodiversity_degradation.Uneaten_feed_nitrogen_load = Feed_input_rate*Proportion_of_uneaten_food*Feed_nitrogen_content
+: c Biodiversity_degradation.Ammonia_from_fish = Farmed_fish_biomass*Ammonia_excretion_per_biomass/1000
+: c Biodiversity_degradation.Total_nitrogen_waste_load = Uneaten_feed_nitrogen_load+Ammonia_from_fish
+: c Biodiversity_degradation.Degradation_from_nutrient_load = Total_nitrogen_waste_load*Nutrient_impact_factor*Water_quality_index_degradation_multiplier
+: c Biodiversity_degradation.Antibiotic_annual_load = Base_annual_antibiotic_load*(Institutions_and_policy.Regulation_effectiveness+Sustainable_behaviour.Sustainable_behaviour_intention)
+    UNITS: Dimensionless
+: c Biodiversity_degradation.Degradation_from_chemical_load = Antibiotic_annual_load*Antibiotic_impact_factor*Water_quality_index_degradation_multiplier
+: c Biodiversity_degradation.Degradation_from_plastic_stock = Marine_plastic_pollution*Packaging_impact_factor_per_tons_of_waste*Water_quality_index_degradation_multiplier
+: c Biodiversity_degradation."Sea-surface_temperature" = GRAPH(TIME)
+Points: (1,00, 0,000), (2,00, 0,01586), (3,00, 0,04097), (4,00, 0,08119), (5,00, 0,1456), (6,00, 0,2473), (7,00, 0,403), (8,00, 0,6293), (9,00, 0,9337), (10,00, 1,303), (11,00, 1,697), (12,00, 2,066), (13,00, 2,371), (14,00, 2,597), (15,00, 2,753), (16,00, 2,854), (17,00, 2,919), (18,00, 2,959), (19,00, 2,984), (20,00, 3,000)
+: c Biodiversity_degradation.Temperature_anomaly = GRAPH("Sea-surface_temperature")
+Points: (0,000, 0,000), (0,200, 0,1505), (0,400, 0,2868), (0,600, 0,410), (0,800, 0,5215), (1,000, 0,6225), (1,200, 0,7138), (1,400, 0,7964), (1,600, 0,8711), (1,800, 0,9388), (2,000, 1,000)
+: c Biodiversity_degradation.Degradation_due_to_temperature = GRAPH(Temperature_anomaly)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: c Biodiversity_degradation.Sea_surface_salinity = GRAPH(TIME)
+Points: (1,00, 0,0), (2,00, 8,111), (3,00, 15,81), (4,00, 23,11), (5,00, 30,03), (6,00, 36,6), (7,00, 42,84), (8,00, 48,75), (9,00, 54,36), (10,00, 59,69), (11,00, 64,74), (12,00, 69,53), (13,00, 74,08), (14,00, 78,39), (15,00, 82,48), (16,00, 86,36), (17,00, 90,05), (18,00, 93,54), (19,00, 96,85), (20,00, 100,0)
+: c Biodiversity_degradation.Salinity_anomaly = GRAPH(Sea_surface_salinity)
+Points: (0,000, 0,000), (0,200, 0,1505), (0,400, 0,2868), (0,600, 0,410), (0,800, 0,5215), (1,000, 0,6225), (1,200, 0,7138), (1,400, 0,7964), (1,600, 0,8711), (1,800, 0,9388), (2,000, 1,000)
+: c Biodiversity_degradation.Degradation_due_to_salinity = GRAPH(Salinity_anomaly)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: f Biodiversity_degradation.Water_quality_degradation = Degradation_from_organic_load*Degradation_from_nutrient_load*Degradation_from_chemical_load*Degradation_from_plastic_stock*Degradation_due_to_temperature*Degradation_due_to_salinity {UNIFLOW}
+: c Fish_farming.Fish_demand_status = Base_demand+.Fish_farming_domestic_policy
+: c Fish_farming.Economic_viability_factor = Fish_demand_status+(.Labelling_policy*Labelling_impact_on_economic)
+: f Fish_farming.Hatchery_produciton_rate = Broadstock_health_factor*Hatchery_capacity*Hatchery_survival_rate*Economic_viability_factor {UNIFLOW}
+: c Fish_farming.Antibiotic_treatment_level = GRAPH(Biodiversity_degradation.Antibiotic_annual_load)
+Points: (0,0, 0,000), (20,0, 0,01263), (40,0, 0,04341), (60,0, 0,1165), (80,0, 0,2676), (100,0, 0,500), (120,0, 0,7324), (140,0, 0,8835), (160,0, 0,9566), (180,0, 0,9874), (200,0, 1,000)
+: c Fish_farming."Diseases_induced_mortality_factor_(juvenile)" = Base_disease_mortality*(1-Antibiotic_treatment_level)
+: f Fish_farming.Juvenile_mortality = Juvenile_fish_population*(Base_juvenile_mortality_rate+"Diseases_induced_mortality_factor_(juvenile)"+(Biodiversity_degradation.Water_quality_index*"Water_quality_impact_(juvenile)")) {UNIFLOW}
+    OUTFLOW PRIORITY: 1
+: f Fish_farming.Stocking_rate = Juvenile_fish_population*"Stocking_proportion/year" {UNIFLOW}
+    OUTFLOW PRIORITY: 2
+: c Fish_farming."Diseases_induced_mortality_factor_(fish)" = "Base_disease_mortality(fish)"*(1-Antibiotic_treatment_level)
+: f Fish_farming.Mortality_rate = Farmed_fish*(Base_mortality_rate+"Diseases_induced_mortality_factor_(fish)"+("Water_quality_impact(fish)"*Biodiversity_degradation.Water_quality_index)) {UNIFLOW}
+    OUTFLOW PRIORITY: 1
+: f Fish_farming.Harvest_rate = Farmed_fish*"Harvest_rate/year" {UNIFLOW}
+    OUTFLOW PRIORITY: 2
+: c Institutions_and_policy.Governance_funding_for_aquaculture = 0,1*.Funding_opportunities
+: c Institutions_and_policy.Aquaculture_economic_viability = GRAPH(Fish_farming.Farmed_fish)
+Points: (0, 0,000), (5000, 0,01263), (10000, 0,04341), (15000, 0,1165), (20000, 0,2676), (25000, 0,500), (30000, 0,7324), (35000, 0,8835), (40000, 0,9566), (45000, 0,9874), (50000, 1,000)
+: f Institutions_and_policy.Increasing_capacity = ((Base_capacity*Governance_funding_for_aquaculture)+(Aquaculture_economic_viability*Economic_impact_on_governance)+(Biodiversity_degradation.Water_quality_index*Water_quality_impact))*(1-Institutional_capacity) {UNIFLOW}
+    UNITS: Per Year
+: c Institutions_and_policy.Decay_due_to_water_quality = GRAPH(Biodiversity_degradation.Water_quality_index)
+Points: (0,000, 1,000), (0,100, 0,9874), (0,200, 0,9566), (0,300, 0,8835), (0,400, 0,7324), (0,500, 0,500), (0,600, 0,2676), (0,700, 0,1165), (0,800, 0,04341), (0,900, 0,01263), (1,000, 0,000)
+: c Institutions_and_policy.Capacity_degradation_rate = Base_decay*Decay_due_to_water_quality
+: f Institutions_and_policy.Reducing_capacity = Institutional_capacity*Capacity_degradation_rate {UNIFLOW}
+    UNITS: Per Year
+: c Institutions_and_policy.Environmental_monitoring = GRAPH(Institutional_capacity)
+Points: (0,000, 0,000), (0,200, 0,02526), (0,400, 0,08682), (0,600, 0,2331), (0,800, 0,5352), (1,000, 1,000), (1,200, 1,465), (1,400, 1,767), (1,600, 1,913), (1,800, 1,975), (2,000, 2,000)
+: c Institutions_and_policy.Incentives_for_sustainable_practices = GRAPH(Institutional_capacity)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: c Institutions_and_policy.Infrastructure_development = GRAPH(Institutional_capacity)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+: c Institutions_and_policy.Research_and_innovation_support = GRAPH(Institutional_capacity)
+Points: (0,000, 0,000), (0,100, 0,1505), (0,200, 0,2868), (0,300, 0,410), (0,400, 0,5215), (0,500, 0,6225), (0,600, 0,7138), (0,700, 0,7964), (0,800, 0,8711), (0,900, 0,9388), (1,000, 1,000)
+: c Institutions_and_policy.Training_and_capacity_building = GRAPH(Institutional_capacity)
+Points: (0,000, 0,000), (0,100, 0,01263), (0,200, 0,04341), (0,300, 0,1165), (0,400, 0,2676), (0,500, 0,500), (0,600, 0,7324), (0,700, 0,8835), (0,800, 0,9566), (0,900, 0,9874), (1,000, 1,000)
+    UNITS: Dimensionless
+: c Sustainable_behaviour.Impact_on_attitude = 0,6*Institutions_and_policy.Institutional_capacity
+: c Sustainable_behaviour.Labelling_impact_on_attitude = 0,6*Institutions_and_policy.Institutional_capacity*Institutions_and_policy.Environmental_monitoring
+: c Sustainable_behaviour.Awareness = 0,1+.Sustainability_education
+: f Sustainable_behaviour.Increasing_attitude = (((0,8*Institutions_and_policy.Infrastructure_development)+(0,4*Biodiversity_degradation.Temperature_anomaly))+(Impact_on_attitude*+(.Labelling_policy*Labelling_impact_on_attitude))*Awareness)*(1-Attitude) {UNIFLOW}
+: f Sustainable_behaviour.SN_rate = (Water_quality_impact*Biodiversity_degradation.Water_quality_index)+.Sustainability_education {UNIFLOW}
+: f Sustainable_behaviour.Intention_rate = Perceived_Behavioural_Control*Attitude*SN_rate*(1-Sustainable_behaviour_intention) {UNIFLOW}
+    UNITS: Per Year
+: f Sustainable_behaviour.PBC_rate = (1-Perceived_Behavioural_Control)*Biodiversity_degradation.Waste_recycling*Institutions_and_policy.Training_and_capacity_building*.Funding_opportunities {UNIFLOW}
+
+{ TIME SPECS }
+STARTTIME=1
+STOPTIME=20
+DT=0,25
+INTEGRATION=EULER
+RUNMODE=NORMAL
+PAUSEINTERVAL=0
