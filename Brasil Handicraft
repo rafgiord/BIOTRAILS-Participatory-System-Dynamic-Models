@@ -53,7 +53,7 @@
 : c "INDIGENOUS_WELL-BEING".BASE_RAW_MATERIAL_AVAILABILITY = 0,02
     UNITS: Percentage/Year
 : c LANDUSE_CONFLICTS.Secure_indigenous_land_right = 0
-: c "INDIGENOUS_WELL-BEING".availability_of_raw_material_for_handicraft = (LANDUSE_CONFLICTS.Indigenous_Forest_Area/INIT (LANDUSE_CONFLICTS.Indigenous_Forest_Area)) * (1 - 2*ENVIRONMENTAL_DEGRADATION.Environmental_Degradation/ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION) * BASE_RAW_MATERIAL_AVAILABILITY+ 3*LANDUSE_CONFLICTS.Secure_indigenous_land_right
+: c "INDIGENOUS_WELL-BEING".availability_of_raw_material_for_handicraft = (LANDUSE_CONFLICTS.Indigenous_Forest_Area/INIT (LANDUSE_CONFLICTS.Indigenous_Forest_Area)) * (1 - ENVIRONMENTAL_DEGRADATION.Environmental_Degradation/ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION) * BASE_RAW_MATERIAL_AVAILABILITY+ 3*LANDUSE_CONFLICTS.Secure_indigenous_land_right
     DOCUMENT: More indigenous forest area, more material
 : c LANDUSE_CONFLICTS.BASE_FOREST_RECOVERY_RATE = 0,001
     UNITS: Percentage/Year
@@ -183,15 +183,15 @@
 : f LANDUSE_CONFLICTS.conversion_to_pasture_area = pasture_expansion_demand_rate*PASTURE_CONVERSION_EFFICIENCY*(DELAY((Cleared_Land_Area); 2))
     UNITS: Percentage/Year
     DOCUMENT: Cleared land area available for pasture conversion after a delay period.
-: c Coordination_costs = 7
-: c Education_cost = 4
-: c Engagement_cost = 3
-: c Forest_restoration_cost = 7
-: c land_right_cost = 8
-: c Market_access_cost = 4
-: c Monitoring_cost = 7
-: c Women_Engagement_cost = 2
-: c Training_costs = 4
+: c Coordination_costs = 5
+: c Education_cost = 5
+: c Engagement_cost = 5
+: c Forest_restoration_cost = 5
+: c land_right_cost = 5
+: c Market_access_cost = 5
+: c Monitoring_cost = 5
+: c Women_Engagement_cost = 5
+: c Training_costs = 5
 : c "INDIGENOUS_WELL-BEING".Engagement = 0
 : c INSTITUTIONAL_CAPACITY.Enhance_environmental_monitoring = 0
 : c Overall_strategy_cost = ("INDIGENOUS_WELL-BEING".Increase_market_accessibility*Market_access_cost)+(land_right_cost*LANDUSE_CONFLICTS.Secure_indigenous_land_right)+("INDIGENOUS_WELL-BEING".Women_engagement_initiatives*Women_Engagement_cost)+("INDIGENOUS_WELL-BEING".Education_and_knowledge_transfer*Education_cost)+("INDIGENOUS_WELL-BEING".Training_and_capacity_building*Training_costs)+(INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation*Coordination_costs)+(Engagement_cost*"INDIGENOUS_WELL-BEING".Engagement)+(Forest_restoration_cost*LANDUSE_CONFLICTS.Forest_conservation_policy)+(Monitoring_cost*INSTITUTIONAL_CAPACITY.Enhance_environmental_monitoring)
@@ -217,7 +217,7 @@
 : c ENVIRONMENTAL_DEGRADATION.SOIL_DEGRADATION_AMPLIFIER = 0,2
     UNITS: Dimensionless
     DOCUMENT: Amplifies environmental degradation rate when soil quality is low
-: c ENVIRONMENTAL_DEGRADATION.conservation_impact_on_degradation = LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES+1,5*INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation
+: c ENVIRONMENTAL_DEGRADATION.conservation_impact_on_degradation = LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES+INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation
 : f ENVIRONMENTAL_DEGRADATION.degradation_rate = (deforestation_impact_on_environmental_degradation + pasture_expansion_impact_on_environmental_degradation + fire_impact_on_degradation + illegal_activities_impact_on_environmental_degradation) * (1 - Environmental_Degradation / MAX_ENVIRONMENTAL_DEGRADATION)* (1 + (1 - Soil_Quality / MAX_SOIL_QUALITY) * SOIL_DEGRADATION_AMPLIFIER)-conservation_impact_on_degradation
     UNITS: Percentage/Year
     DOCUMENT: Total rate of environmental degradation, influenced by various human activities. The (1 - ...) term ensures it slows down as degradation approaches its maximum.
@@ -502,7 +502,7 @@
     DOCUMENT: Mapbiomas data for Rondônia
 : c ENVIRONMENTAL_DEGRADATION.forest_area_impact_on_soil_recovery = LANDUSE_CONFLICTS.Forest_Area / (INIT (LANDUSE_CONFLICTS.Forest_Area * 2))
     UNITS: Dimensionless
-: c "INDIGENOUS_WELL-BEING".availability_of_raw_material_for_handicraft = (LANDUSE_CONFLICTS.Indigenous_Forest_Area/INIT (LANDUSE_CONFLICTS.Indigenous_Forest_Area)) * (1 - 2*ENVIRONMENTAL_DEGRADATION.Environmental_Degradation/ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION) * BASE_RAW_MATERIAL_AVAILABILITY+ 3*LANDUSE_CONFLICTS.Secure_indigenous_land_right
+: c "INDIGENOUS_WELL-BEING".availability_of_raw_material_for_handicraft = (LANDUSE_CONFLICTS.Indigenous_Forest_Area/INIT (LANDUSE_CONFLICTS.Indigenous_Forest_Area)) * (1 - ENVIRONMENTAL_DEGRADATION.Environmental_Degradation/ENVIRONMENTAL_DEGRADATION.MAX_ENVIRONMENTAL_DEGRADATION) * BASE_RAW_MATERIAL_AVAILABILITY+ 3*LANDUSE_CONFLICTS.Secure_indigenous_land_right
     DOCUMENT: More indigenous forest area, more material
 : c LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES = IF TIME > 2030 THEN Forest_conservation_policy ELSE 0
 : f LANDUSE_CONFLICTS.forest_recovery_rate =  BASE_FOREST_RECOVERY_RATE + FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES {UNIFLOW}
@@ -589,7 +589,7 @@ Points: (1,00, 55,0), (5,00, 42,0), (10,00, 62,0), (15,00, 55,3), (20,00, 50,0),
 : c ENVIRONMENTAL_DEGRADATION.illegal_activities_impact_on_environmental_degradation = (LANDUSE_CONFLICTS.illegal_logging_deforestation_rate_non_indigenous+LANDUSE_CONFLICTS.illegal_pasture_pressure_on_indigenous_land+LANDUSE_CONFLICTS.illegal_logging_pressure_on_indigenous_land+LANDUSE_CONFLICTS.illegal_pasture_pressure_rate_non_indigenous+LANDUSE_CONFLICTS.land_grabbing_pressure_on_non_indigenous_forest+LANDUSE_CONFLICTS.land_grabbing_pressure_on_indigenous_land) * ILLEGAL_ACTIVITIES_DEGRADATION_FACTOR
     UNITS: Percentage/Year
     DOCUMENT: Combined impact of all illegal activities (both indigenous and non-indigenous areas) on environmental degradation. The impact of illegal activities on the environment is not only a function of the area converted/deforested, but also of the way in which the activity is conducted, and this method is inherently more destructive when the activity is illegal and unregulated.
-: c ENVIRONMENTAL_DEGRADATION.conservation_impact_on_degradation = LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES+1,5*INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation
+: c ENVIRONMENTAL_DEGRADATION.conservation_impact_on_degradation = LANDUSE_CONFLICTS.FOREST_CONSERVATION_AND_RESTORATION_PROGRAMMES+INSTITUTIONAL_CAPACITY.Policy_coordination_and_cooperation
 : f ENVIRONMENTAL_DEGRADATION.degradation_rate = (deforestation_impact_on_environmental_degradation + pasture_expansion_impact_on_environmental_degradation + fire_impact_on_degradation + illegal_activities_impact_on_environmental_degradation) * (1 - Environmental_Degradation / MAX_ENVIRONMENTAL_DEGRADATION)* (1 + (1 - Soil_Quality / MAX_SOIL_QUALITY) * SOIL_DEGRADATION_AMPLIFIER)-conservation_impact_on_degradation {UNIFLOW}
     UNITS: Percentage/Year
     DOCUMENT: Total rate of environmental degradation, influenced by various human activities. The (1 - ...) term ensures it slows down as degradation approaches its maximum.
